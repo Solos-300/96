@@ -1,0 +1,764 @@
+<!-- games/plinko.html -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Plinko</title>
+
+<style>
+  :root{
+    --bg0:#050608;
+    --bg1:#0b0c10;
+    --bg2:#12131a;
+
+    --text:#e9ebf2;
+    --muted:#a7adbd;
+
+    --gold:#d4af37;
+    --gold2:#f5d76e;
+
+    --stroke: rgba(255,255,255,0.08);
+    --shadow: 0 20px 70px rgba(0,0,0,.62);
+    --r:18px;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+    color:var(--text);
+    background:
+      radial-gradient(1200px 600px at 15% 0%, rgba(212,175,55,.08), transparent 60%),
+      radial-gradient(900px 500px at 85% 10%, rgba(245,215,110,.06), transparent 55%),
+      linear-gradient(135deg,var(--bg0),var(--bg1) 45%,var(--bg2));
+    overflow-x:hidden;
+  }
+
+  .top-note{
+    position:fixed;
+    top:0;left:0;width:100%;
+    z-index:9999;
+    background: linear-gradient(90deg, rgba(5,6,8,0.92), rgba(18,19,26,0.92));
+    border-bottom: 1px solid rgba(212,175,55,0.22);
+    color: rgba(245,215,110,0.95);
+    font-size:12px;
+    letter-spacing:0.6px;
+    padding:6px 12px;
+    text-align:center;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
+  .wrap{max-width:1200px;margin:auto;padding:62px 16px 40px}
+  header{
+    display:flex;justify-content:space-between;align-items:center;gap:12px;
+    border:1px solid var(--stroke);
+    background: linear-gradient(180deg, rgba(18,19,26,0.72), rgba(10,10,14,0.72));
+    padding:12px 14px;border-radius:calc(var(--r) + 2px);
+    box-shadow:var(--shadow);
+    position:sticky; top:34px; z-index:50;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+  .brand{display:flex;align-items:center;gap:10px;min-width:220px}
+  .brand img{width:40px;height:40px;object-fit:contain;filter:drop-shadow(0 10px 16px rgba(0,0,0,.55))}
+  .brand b{letter-spacing:.6px;font-size:14px}
+  .brand span{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+
+  .nav{display:flex;gap:10px;align-items:center;justify-content:center;flex:1;flex-wrap:wrap}
+  .pill{
+    text-decoration:none;color:var(--text);font-size:13px;
+    padding:10px 12px;border-radius:999px;
+    border:1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.03);
+    transition:.15s ease;
+    user-select:none;
+  }
+  .pill:hover{transform:translateY(-1px);border-color:rgba(212,175,55,.35);background:rgba(212,175,55,.06)}
+
+  .badge{
+    padding:9px 12px;border-radius:999px;
+    background:rgba(255,255,255,.03);
+    border:1px solid rgba(255,255,255,.08);
+    font-size:13px;
+    display:flex;gap:10px;align-items:center;white-space:nowrap;
+  }
+  .coins{color:var(--gold2);font-weight:800;text-shadow:0 0 18px rgba(212,175,55,.18)}
+
+  .layout{
+    margin-top:14px;
+    display:grid;
+    grid-template-columns: 380px 1fr;
+    gap:14px;
+  }
+  .card{
+    border:1px solid var(--stroke);
+    background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+    border-radius:var(--r);
+    padding:16px;
+    box-shadow:var(--shadow);
+    position:relative;
+    overflow:hidden;
+  }
+  .card::before{
+    content:"";
+    position:absolute; inset:-2px;
+    background: radial-gradient(520px 240px at 18% 0%, rgba(212,175,55,0.12), transparent 55%);
+    opacity:0.9; pointer-events:none;
+  }
+  .card > *{position:relative}
+
+  h3{margin:0;font-size:16px;letter-spacing:.6px}
+  .sub{margin-top:6px;color:var(--muted);font-size:13px;line-height:1.55}
+
+  label{
+    display:block;
+    margin-top:12px;
+    font-size:12px;
+    color:var(--muted);
+    letter-spacing:.6px;
+    text-transform:uppercase;
+  }
+  input, select{
+    width:100%;
+    padding:12px;
+    border-radius:14px;
+    border:1px solid rgba(255,255,255,.10);
+    background: rgba(0,0,0,.18);
+    color:#fff;
+    outline:none;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+  }
+
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:12px}
+  .btn{
+    padding:12px 12px;
+    border-radius:14px;
+    border:1px solid rgba(255,255,255,.08);
+    background: rgba(255,255,255,.03);
+    color:var(--text);
+    cursor:pointer;
+    font-weight:700;
+    font-size:13px;
+    transition:.15s ease;
+    user-select:none;
+  }
+  .btn:hover{transform:translateY(-1px);border-color:rgba(212,175,55,.35);background:rgba(212,175,55,.06)}
+  .btn.primary{
+    border-color: rgba(212,175,55,0.45);
+    background: linear-gradient(180deg, rgba(212,175,55,0.24), rgba(212,175,55,0.10));
+    box-shadow: 0 10px 30px rgba(212,175,55,0.12);
+    color: var(--gold2);
+  }
+  .btn:disabled{opacity:.45;cursor:not-allowed;transform:none!important}
+
+  .chipsRow{margin-top:10px;display:flex;gap:10px;flex-wrap:wrap}
+  .chip{
+    padding:10px 12px;border-radius:999px;
+    border:1px solid rgba(255,255,255,.08);
+    background: rgba(255,255,255,.03);
+    cursor:pointer;
+    font-size:13px;
+    transition:.15s ease;
+    user-select:none;
+  }
+  .chip:hover{transform:translateY(-1px);border-color:rgba(212,175,55,.35);background:rgba(212,175,55,.06)}
+
+  .status{
+    margin-top:12px;
+    display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;
+    padding:12px 12px;border-radius:16px;
+    border:1px solid rgba(255,255,255,.07);
+    background: rgba(0,0,0,.18);
+  }
+  .status .k{font-size:12px;color:var(--muted);letter-spacing:.6px;text-transform:uppercase}
+  .status .v{font-size:14px;font-weight:900;letter-spacing:.3px}
+
+  .boardCard{padding:0}
+  .boardHdr{
+    padding:16px;
+    border-bottom:1px solid rgba(255,255,255,0.08);
+    display:flex;align-items:flex-start;justify-content:space-between;gap:10px;
+  }
+  .tag{
+    font-size:11px;letter-spacing:.6px;text-transform:uppercase;
+    color: rgba(245,215,110,0.95);
+    border:1px solid rgba(212,175,55,0.25);
+    background: rgba(212,175,55,0.06);
+    padding:6px 8px;border-radius:999px;white-space:nowrap;
+    height:fit-content;
+  }
+
+  canvas{width:100%;height:520px;display:block;background: linear-gradient(180deg, rgba(0,0,0,0.18), rgba(0,0,0,0.06));}
+
+  .bins{
+    display:grid;
+    gap:6px;
+    padding:12px 16px 16px;
+    grid-template-columns: repeat(var(--bins), 1fr);
+  }
+  .bin{
+    text-align:center;
+    padding:8px 0;
+    font-size:12px;
+    border-radius:10px;
+    background:rgba(255,255,255,.03);
+    border:1px solid rgba(255,255,255,.08);
+    user-select:none;
+  }
+  .bin.hot{
+    color:var(--gold2);
+    border-color: rgba(212,175,55,0.28);
+    background: rgba(212,175,55,0.06);
+    font-weight:800;
+  }
+
+  .toast{
+    position:fixed;
+    left:50%;
+    bottom:22px;
+    transform: translateX(-50%);
+    padding:10px 12px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,0.08);
+    background: rgba(0,0,0,0.35);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: var(--text);
+    font-size:13px;
+    opacity:0;
+    z-index:9999;
+    transition: opacity .18s ease, transform .18s ease;
+    box-shadow: 0 16px 60px rgba(0,0,0,0.55);
+    white-space:nowrap;
+  }
+  .toast.show{opacity:1; transform: translateX(-50%) translateY(-2px);}
+  .toast b{color:var(--gold2);}
+
+  @media(max-width:980px){
+    .layout{grid-template-columns:1fr}
+    .nav{display:none}
+    canvas{height:460px}
+  }
+</style>
+</head>
+
+<body>
+<div class="top-note">SERVER OPEN</div>
+
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <img alt="Logo" src="https://s3-eu-west-1.amazonaws.com/tpd/logos/67bdce6bfa82955c61946b3e/0x0.png" />
+      <div>
+        <b>Plinko</b>
+        <span>Triangle pegs • Real bounce physics</span>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <a class="pill" href="../index.html">Lobby</a>
+      <a class="pill" href="chicken.html">Chicken</a>
+      <a class="pill" href="crash.html">Crash</a>
+      <a class="pill" href="../profile.html">Profile</a>
+    </nav>
+
+    <div class="badge" title="Your balance">
+      <span id="user">Guest</span>
+      <span class="coins" id="bal">0 Coins</span>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- Controls -->
+    <section class="card">
+      <h3>Drop</h3>
+      <div class="sub">Pick a bet, choose rows (triangle size), then drop. Cash is applied automatically when it lands.</div>
+
+      <label for="bet">Bet amount</label>
+      <input id="bet" type="number" min="1" step="1" value="500" />
+      <div class="chipsRow">
+        <div class="chip" data-bet="100">100</div>
+        <div class="chip" data-bet="500">500</div>
+        <div class="chip" data-bet="1000">1,000</div>
+        <div class="chip" data-bet="5000">5,000</div>
+        <div class="chip" data-bet="10000">10,000</div>
+      </div>
+
+      <label for="rows">Rows</label>
+      <select id="rows">
+        <option value="10">10</option>
+        <option value="12" selected>12</option>
+        <option value="14">14</option>
+        <option value="16">16</option>
+      </select>
+
+      <label for="risk">Risk</label>
+      <select id="risk">
+        <option value="low">Low</option>
+        <option value="med" selected>Medium</option>
+        <option value="high">High</option>
+      </select>
+
+      <div class="status">
+        <div>
+          <div class="k">Last result</div>
+          <div class="v" id="lastRes">—</div>
+        </div>
+        <div>
+          <div class="k">Last payout</div>
+          <div class="v" id="lastPay">—</div>
+        </div>
+      </div>
+
+      <div class="row">
+        <button class="btn primary" id="dropBtn">Drop</button>
+        <button class="btn" id="clearBtn">Clear</button>
+      </div>
+
+      <div class="sub" style="margin-top:10px;">
+        Tip: triangle layout = thin top / wide bottom, so every bounce can redirect your path.
+      </div>
+    </section>
+
+    <!-- Board -->
+    <section class="card boardCard">
+      <div class="boardHdr">
+        <div>
+          <h3>Board</h3>
+          <div class="sub" style="margin-top:6px;">Physics-based collisions (ball + pegs + walls). Multipliers depend on slot.</div>
+        </div>
+        <div class="tag" id="tag">READY</div>
+      </div>
+
+      <canvas id="c"></canvas>
+      <div class="bins" id="bins" style="--bins: 13;"></div>
+    </section>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===== Shared wallet ===== */
+const LS = { user:"sim_user", balance:"sim_balance", display:"sim_display_name" };
+const $ = (id)=>document.getElementById(id);
+function getBal(){ const n = Number(localStorage.getItem(LS.balance)); return Number.isFinite(n)? n : 0; }
+function setBal(v){ localStorage.setItem(LS.balance, String(Math.max(0, Math.floor(v)))); }
+function fmtCoins(n){ return `${n.toLocaleString("en-GB")} Coins`; }
+function refresh(){
+  $("user").textContent = localStorage.getItem(LS.display) || localStorage.getItem(LS.user) || "Guest";
+  $("bal").textContent = fmtCoins(getBal());
+}
+const starterKey = "sim_starter_given";
+if(getBal() === 0 && !localStorage.getItem(starterKey)){
+  setBal(5000); localStorage.setItem(starterKey, "1");
+}
+refresh();
+
+/* ===== Toast ===== */
+const toastEl = $("toast");
+function toast(html){
+  toastEl.innerHTML = html;
+  toastEl.classList.add("show");
+  clearTimeout(toastEl._t);
+  toastEl._t = setTimeout(()=>toastEl.classList.remove("show"), 1400);
+}
+
+/* ===== UI ===== */
+const betInput = $("bet");
+const rowsSel = $("rows");
+const riskSel = $("risk");
+const dropBtn = $("dropBtn");
+const clearBtn = $("clearBtn");
+const lastRes = $("lastRes");
+const lastPay = $("lastPay");
+const tag = $("tag");
+
+document.querySelectorAll(".chip").forEach(ch=>{
+  ch.addEventListener("click", ()=>{
+    betInput.value = String(Number(ch.dataset.bet || "1"));
+  });
+});
+
+/* ===== Multipliers by risk =====
+   Bins count depends on rows (bins = rows + 1)
+   We generate a symmetric table.
+*/
+function buildMultipliers(rows, risk){
+  const bins = rows + 1;
+
+  // base curve: edges higher, middle lower (or vice versa) depending on risk
+  // We'll shape it to feel "real": low risk flatter, high risk more extreme.
+  const table = [];
+  const mid = (bins - 1) / 2;
+  for(let i=0;i<bins;i++){
+    const d = Math.abs(i - mid) / mid; // 0..1
+    let m;
+
+    if(risk === "low"){
+      // gentle edges
+      m = 0.60 + 0.90 * Math.pow(d, 1.5); // 0.60..1.50
+    }else if(risk === "med"){
+      // medium curve
+      m = 0.35 + 2.15 * Math.pow(d, 1.7); // 0.35..2.50
+    }else{
+      // high risk: very low middle, spicy edges
+      m = 0.15 + 7.85 * Math.pow(d, 2.1); // 0.15..8.00
+    }
+
+    // clamp and round display
+    m = Math.max(0.05, Math.min(m, 20));
+    table.push(Number(m.toFixed(2)));
+  }
+
+  // Make edges pop a bit more on med/high so it feels rewarding
+  if(risk !== "low"){
+    table[0] = Number((table[0] * 1.25).toFixed(2));
+    table[bins-1] = Number((table[bins-1] * 1.25).toFixed(2));
+  }
+  return table;
+}
+
+function renderBins(mults){
+  const binsEl = $("bins");
+  binsEl.style.setProperty("--bins", String(mults.length));
+  binsEl.innerHTML = "";
+  const max = Math.max(...mults);
+  mults.forEach(m=>{
+    const d = document.createElement("div");
+    d.className = "bin" + (m >= max * 0.85 ? " hot" : "");
+    d.textContent = `${m}×`;
+    binsEl.appendChild(d);
+  });
+}
+
+/* ===== Physics Engine (simple, reliable) ===== */
+const canvas = $("c");
+const ctx = canvas.getContext("2d");
+
+let DPR = 1;
+let W = 0, H = 0;
+
+function resize(){
+  DPR = Math.max(1, window.devicePixelRatio || 1);
+  const rect = canvas.getBoundingClientRect();
+  W = rect.width;
+  H = rect.height;
+  canvas.width = Math.floor(W * DPR);
+  canvas.height = Math.floor(H * DPR);
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.scale(DPR, DPR);
+
+  // rebuild board when resized for consistent spacing
+  buildBoard();
+}
+window.addEventListener("resize", resize);
+
+const world = {
+  rows: 12,
+  risk: "med",
+  pegs: [],
+  mults: [],
+  ball: null,
+  // physics tune
+  g: 1800,          // gravity px/s^2
+  drag: 0.998,      // velocity damping
+  restitution: 0.62,// bounciness
+  friction: 0.985,  // tangential damping on peg hit
+  maxV: 2200,
+  // layout
+  topPad: 40,
+  sidePad: 28,
+  pegR: 5,
+  ballR: 7,
+  rowGap: 30,
+  colGap: 30,
+  bins: 13,
+  floorY: 0
+};
+
+function buildBoard(){
+  world.rows = Number(rowsSel.value);
+  world.risk = riskSel.value;
+  world.bins = world.rows + 1;
+
+  world.mults = buildMultipliers(world.rows, world.risk);
+  renderBins(world.mults);
+
+  // Choose spacing based on current canvas size
+  const usableW = W - world.sidePad * 2;
+  // Make triangle fit width: bottom row has rows pegs (row index rows-1 => count rows)
+  // We want colGap so that bottom row spans most of usable width.
+  world.colGap = usableW / (world.rows + 1);
+  world.rowGap = Math.max(24, Math.min(34, (H - world.topPad - 130) / (world.rows + 1)));
+
+  world.pegR = Math.max(4, Math.min(6, world.colGap * 0.12));
+  world.ballR = Math.max(6, Math.min(8, world.colGap * 0.16));
+
+  // Peg triangle: row 0 has 1 peg, row 1 has 2, ..., row rows-1 has rows pegs
+  world.pegs = [];
+  const centerX = W / 2;
+
+  for(let r=0; r<world.rows; r++){
+    const count = r + 1;
+    const y = world.topPad + r * world.rowGap;
+
+    // width of this row in terms of gaps:
+    // positions centered around centerX
+    const rowWidth = (count - 1) * world.colGap;
+    const startX = centerX - rowWidth / 2;
+
+    for(let i=0; i<count; i++){
+      world.pegs.push({
+        x: startX + i * world.colGap,
+        y
+      });
+    }
+  }
+
+  world.floorY = H - 70;
+}
+rowsSel.addEventListener("change", ()=>{ buildBoard(); clearBall(true); });
+riskSel.addEventListener("change", ()=>{ buildBoard(); });
+
+function clearBall(silent=false){
+  world.ball = null;
+  tag.textContent = "READY";
+  if(!silent) toast("Cleared");
+}
+clearBtn.addEventListener("click", ()=>clearBall(false));
+
+/* ===== Ball drop + payout ===== */
+function clampBet(){
+  let n = Number(betInput.value);
+  if(!Number.isFinite(n) || n <= 0) n = 1;
+  betInput.value = String(Math.floor(n));
+  return Math.floor(n);
+}
+
+dropBtn.addEventListener("click", ()=>{
+  if(world.ball) return; // one ball at a time
+
+  const bet = clampBet();
+  const bal = getBal();
+  if(bet > bal){
+    toast("Insufficient funds");
+    return;
+  }
+
+  setBal(bal - bet);
+  refresh();
+
+  // Spawn near top with tiny x jitter
+  const x = (W/2) + (Math.random() * 12 - 6);
+  world.ball = {
+    x, y: 18,
+    vx: (Math.random()*90 - 45),
+    vy: 0,
+    bet,
+    alive: true
+  };
+
+  tag.textContent = "RUNNING";
+});
+
+/* ===== Collision helpers ===== */
+function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
+
+function pegCollision(ball, peg){
+  const dx = ball.x - peg.x;
+  const dy = ball.y - peg.y;
+  const dist = Math.hypot(dx, dy);
+  const minDist = world.ballR + world.pegR;
+
+  if(dist > 0 && dist < minDist){
+    // normal
+    const nx = dx / dist;
+    const ny = dy / dist;
+
+    // separate (resolve penetration)
+    const penetration = (minDist - dist);
+    ball.x += nx * penetration;
+    ball.y += ny * penetration;
+
+    // relative velocity along normal
+    const vn = ball.vx * nx + ball.vy * ny;
+
+    // only bounce if moving into peg
+    if(vn < 0){
+      // reflect
+      const e = world.restitution;
+      ball.vx -= (1 + e) * vn * nx;
+      ball.vy -= (1 + e) * vn * ny;
+
+      // tangential damping + micro randomness for “true plinko feel”
+      const tx = -ny, ty = nx;
+      const vt = ball.vx * tx + ball.vy * ty;
+
+      // friction reduces tangential speed
+      ball.vx -= (1 - world.friction) * vt * tx;
+      ball.vy -= (1 - world.friction) * vt * ty;
+
+      // tiny random horizontal impulse to prevent dead-straight paths
+      ball.vx += (Math.random() * 26 - 13);
+    }
+  }
+}
+
+function wallCollision(ball){
+  const left = world.sidePad + world.ballR;
+  const right = W - world.sidePad - world.ballR;
+
+  if(ball.x < left){
+    ball.x = left;
+    ball.vx = Math.abs(ball.vx) * world.restitution;
+  }
+  if(ball.x > right){
+    ball.x = right;
+    ball.vx = -Math.abs(ball.vx) * world.restitution;
+  }
+}
+
+/* ===== Slot calc ===== */
+function getSlotIndex(x){
+  const left = world.sidePad;
+  const right = W - world.sidePad;
+  const bins = world.bins;
+  const w = (right - left) / bins;
+  const idx = Math.floor((x - left) / w);
+  return clamp(idx, 0, bins - 1);
+}
+
+/* ===== Render ===== */
+function drawBoard(){
+  // background
+  ctx.clearRect(0,0,W,H);
+
+  // subtle vignette
+  const grd = ctx.createRadialGradient(W*0.5, H*0.2, 10, W*0.5, H*0.2, Math.max(W,H));
+  grd.addColorStop(0, "rgba(212,175,55,0.06)");
+  grd.addColorStop(1, "rgba(0,0,0,0)");
+  ctx.fillStyle = grd;
+  ctx.fillRect(0,0,W,H);
+
+  // pegs
+  ctx.fillStyle = "rgba(255,255,255,0.20)";
+  for(const p of world.pegs){
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, world.pegR, 0, Math.PI*2);
+    ctx.fill();
+  }
+
+  // floor line
+  ctx.strokeStyle = "rgba(255,255,255,0.10)";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(world.sidePad, world.floorY);
+  ctx.lineTo(W - world.sidePad, world.floorY);
+  ctx.stroke();
+
+  // slot separators
+  const left = world.sidePad;
+  const right = W - world.sidePad;
+  const bins = world.bins;
+  const slotW = (right - left) / bins;
+
+  ctx.strokeStyle = "rgba(255,255,255,0.07)";
+  for(let i=1;i<bins;i++){
+    const x = left + i * slotW;
+    ctx.beginPath();
+    ctx.moveTo(x, world.floorY);
+    ctx.lineTo(x, H - 6);
+    ctx.stroke();
+  }
+
+  // ball
+  if(world.ball){
+    // glow
+    ctx.fillStyle = "rgba(245,215,110,0.20)";
+    ctx.beginPath();
+    ctx.arc(world.ball.x, world.ball.y, world.ballR + 6, 0, Math.PI*2);
+    ctx.fill();
+
+    ctx.fillStyle = "rgba(245,215,110,0.92)";
+    ctx.beginPath();
+    ctx.arc(world.ball.x, world.ball.y, world.ballR, 0, Math.PI*2);
+    ctx.fill();
+  }
+}
+
+/* ===== Main loop ===== */
+let lastT = performance.now();
+
+function step(t){
+  const dt = clamp((t - lastT) / 1000, 0, 1/20); // stable dt
+  lastT = t;
+
+  if(world.ball){
+    const b = world.ball;
+
+    // integrate forces
+    b.vy += world.g * dt;
+
+    // drag
+    b.vx *= Math.pow(world.drag, dt * 60);
+    b.vy *= Math.pow(world.drag, dt * 60);
+
+    // clamp speed
+    b.vx = clamp(b.vx, -world.maxV, world.maxV);
+    b.vy = clamp(b.vy, -world.maxV, world.maxV);
+
+    b.x += b.vx * dt;
+    b.y += b.vy * dt;
+
+    // wall collision
+    wallCollision(b);
+
+    // peg collisions (iterate twice for solidity)
+    for(let k=0;k<2;k++){
+      for(const p of world.pegs) pegCollision(b, p);
+    }
+
+    // landed?
+    if(b.y >= world.floorY - world.ballR){
+      b.y = world.floorY - world.ballR;
+
+      const idx = getSlotIndex(b.x);
+      const mult = world.mults[idx] ?? 0;
+      const win = Math.floor(b.bet * mult);
+
+      setBal(getBal() + win);
+      refresh();
+
+      lastRes.textContent = `Slot ${idx+1} • ${mult.toFixed(2)}×`;
+      lastPay.textContent = win > 0 ? `+${win.toLocaleString("en-GB")}` : "0";
+
+      tag.textContent = "PAID";
+      toast(win > 0
+        ? `Win • <b>${mult.toFixed(2)}×</b> (+${win.toLocaleString("en-GB")})`
+        : `Lost • <b>${mult.toFixed(2)}×</b> (0)`
+      );
+
+      world.ball = null;
+      setTimeout(()=>{ if(!world.ball) tag.textContent = "READY"; }, 500);
+    }
+  }
+
+  drawBoard();
+  requestAnimationFrame(step);
+}
+
+/* ===== Init ===== */
+function init(){
+  resize();
+  buildBoard();
+  renderBins(buildMultipliers(Number(rowsSel.value), riskSel.value));
+  drawBoard();
+  requestAnimationFrame(step);
+}
+init();
+</script>
+</body>
+</html>
