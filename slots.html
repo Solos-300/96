@@ -1,0 +1,1129 @@
+<!-- games/slots.html -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Slots</title>
+
+<style>
+  :root{
+    --bg0:#050608;
+    --bg1:#0b0c10;
+    --bg2:#12131a;
+
+    --panel0: rgba(18,19,26,0.72);
+    --panel1: rgba(10,10,14,0.72);
+
+    --text:#e9ebf2;
+    --muted:#a7adbd;
+
+    --gold:#d4af37;
+    --gold2:#f5d76e;
+
+    --stroke: rgba(255,255,255,0.08);
+    --shadow2: 0 16px 60px rgba(0,0,0,0.55);
+    --shadow: 0 24px 90px rgba(0,0,0,0.60);
+
+    --r: 18px;
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ height:100%; }
+  body{
+    margin:0;
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    color:var(--text);
+    background:
+      radial-gradient(1200px 600px at 15% 0%, rgba(212,175,55,0.08), transparent 60%),
+      radial-gradient(900px 500px at 85% 10%, rgba(245,215,110,0.06), transparent 55%),
+      linear-gradient(135deg, var(--bg0), var(--bg1) 45%, var(--bg2));
+    overflow-x:hidden;
+  }
+
+  /* Top bar */
+  .top-note{
+    position:fixed;
+    top:0; left:0;
+    width:100%;
+    z-index:9999;
+    background: linear-gradient(90deg, rgba(5,6,8,0.92), rgba(18,19,26,0.92));
+    border-bottom: 1px solid rgba(212,175,55,0.22);
+    color: rgba(245,215,110,0.95);
+    font-size:12px;
+    letter-spacing:0.6px;
+    padding:6px 12px;
+    text-align:center;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
+  .wrap{
+    max-width:1200px;
+    margin:0 auto;
+    padding: 62px 18px 30px;
+  }
+
+  header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+    padding: 14px 16px;
+    border:1px solid var(--stroke);
+    background: linear-gradient(180deg, var(--panel0), var(--panel1));
+    border-radius: calc(var(--r) + 2px);
+    box-shadow: var(--shadow2);
+    position:sticky;
+    top:34px;
+    z-index:50;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    min-width: 250px;
+  }
+  .brand img{
+    width:42px;
+    height:42px;
+    object-fit:contain;
+    filter: drop-shadow(0 10px 18px rgba(0,0,0,0.55));
+  }
+  .brand .title{
+    display:flex;
+    flex-direction:column;
+    line-height:1.1;
+  }
+  .brand .title strong{
+    font-size:14px;
+    letter-spacing:0.6px;
+  }
+  .brand .title span{
+    font-size:12px;
+    color:var(--muted);
+  }
+
+  .nav{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    flex-wrap:wrap;
+    justify-content:center;
+    flex:1;
+  }
+  .pill{
+    text-decoration:none;
+    color:var(--text);
+    font-size:13px;
+    padding:10px 12px;
+    border-radius: 999px;
+    border:1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.03);
+    transition: transform .15s ease, border-color .15s ease, background .15s ease;
+    user-select:none;
+  }
+  .pill:hover{
+    transform: translateY(-1px);
+    border-color: rgba(212,175,55,0.35);
+    background: rgba(212,175,55,0.06);
+  }
+
+  .acct{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    justify-content:flex-end;
+    min-width: 300px;
+  }
+  .badge{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:10px 12px;
+    border-radius: 999px;
+    border:1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.03);
+    white-space:nowrap;
+  }
+  .badge .label{
+    font-size:12px;
+    color:var(--muted);
+    letter-spacing:0.4px;
+  }
+  .badge .value{
+    font-size:13px;
+    font-weight:700;
+    letter-spacing:0.3px;
+  }
+  .coins{
+    color: var(--gold2);
+    text-shadow: 0 0 18px rgba(212,175,55,0.18);
+  }
+
+  .btn{
+    cursor:pointer;
+    border:1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.03);
+    color: var(--text);
+    padding:10px 12px;
+    border-radius: 12px;
+    font-size:13px;
+    transition: transform .15s ease, border-color .15s ease, background .15s ease;
+    user-select:none;
+  }
+  .btn:hover{
+    transform: translateY(-1px);
+    border-color: rgba(212,175,55,0.35);
+    background: rgba(212,175,55,0.06);
+  }
+  .btn.primary{
+    border-color: rgba(212,175,55,0.45);
+    background: linear-gradient(180deg, rgba(212,175,55,0.24), rgba(212,175,55,0.10));
+    box-shadow: 0 10px 30px rgba(212,175,55,0.12);
+    color: var(--gold2);
+    font-weight:800;
+  }
+  .btn:disabled{
+    opacity:0.45;
+    cursor:not-allowed;
+    transform:none !important;
+  }
+
+  .layout{
+    margin-top:16px;
+    display:grid;
+    grid-template-columns: 0.9fr 1.1fr;
+    gap:14px;
+  }
+
+  .card{
+    border:1px solid var(--stroke);
+    background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+    border-radius: var(--r);
+    box-shadow: var(--shadow2);
+    padding:16px;
+    position:relative;
+    overflow:hidden;
+  }
+  .card::before{
+    content:"";
+    position:absolute;
+    inset:-2px;
+    background: radial-gradient(520px 240px at 18% 0%, rgba(212,175,55,0.12), transparent 55%);
+    opacity:0.9;
+    pointer-events:none;
+  }
+  .card > *{ position:relative; }
+
+  h1{
+    margin:0;
+    font-size:18px;
+    letter-spacing:0.6px;
+  }
+  .sub{
+    margin-top:6px;
+    color:var(--muted);
+    font-size:13.5px;
+    line-height:1.6;
+  }
+
+  label{
+    font-size:12px;
+    color:var(--muted);
+    letter-spacing:0.6px;
+    text-transform:uppercase;
+  }
+  .field{ display:grid; gap:8px; margin-top:12px; }
+
+  .input{
+    width:100%;
+    border-radius: 14px;
+    border:1px solid rgba(255,255,255,0.08);
+    background: rgba(0,0,0,0.18);
+    color:var(--text);
+    padding:12px 12px;
+    outline:none;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+  }
+
+  .chipsRow{
+    margin-top:10px;
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .chipBtn{
+    cursor:pointer;
+    border:1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.03);
+    padding:10px 12px;
+    border-radius: 999px;
+    font-size:13px;
+    color: var(--text);
+    transition: transform .15s ease, border-color .15s ease, background .15s ease;
+    user-select:none;
+  }
+  .chipBtn:hover{
+    transform: translateY(-1px);
+    border-color: rgba(212,175,55,0.35);
+    background: rgba(212,175,55,0.06);
+  }
+
+  .statusBar{
+    margin-top:12px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+    padding:12px 12px;
+    border-radius: 16px;
+    border:1px solid rgba(255,255,255,0.07);
+    background: rgba(0,0,0,0.18);
+  }
+  .statusBar .k{
+    font-size:12px;
+    color:var(--muted);
+    letter-spacing:0.6px;
+    text-transform:uppercase;
+  }
+  .statusBar .v{
+    font-size:14px;
+    font-weight:900;
+    letter-spacing:0.3px;
+  }
+  .statusBar .gold{
+    color:var(--gold2);
+    text-shadow: 0 0 18px rgba(212,175,55,0.18);
+  }
+
+  /* Slot machine */
+  .machine{
+    padding:0;
+    overflow:hidden;
+  }
+  .machineHdr{
+    padding:16px;
+    border-bottom:1px solid rgba(255,255,255,0.08);
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:12px;
+  }
+  .tag{
+    font-size:11px;
+    letter-spacing:0.6px;
+    text-transform:uppercase;
+    color: rgba(245,215,110,0.95);
+    border:1px solid rgba(212,175,55,0.25);
+    background: rgba(212,175,55,0.06);
+    padding:6px 8px;
+    border-radius: 999px;
+    white-space:nowrap;
+    height: fit-content;
+  }
+
+  .reelArea{
+    padding:16px;
+  }
+
+  .window{
+    border-radius: 22px;
+    border:1px solid rgba(212,175,55,0.28);
+    background:
+      linear-gradient(180deg, rgba(0,0,0,0.35), rgba(0,0,0,0.18));
+    box-shadow:
+      0 30px 120px rgba(0,0,0,0.55),
+      inset 0 1px 0 rgba(255,255,255,0.06),
+      inset 0 -1px 0 rgba(0,0,0,0.55);
+    padding:14px;
+    position:relative;
+    overflow:hidden;
+  }
+
+  .glowLine{
+    position:absolute;
+    left:0; right:0;
+    top:50%;
+    height:2px;
+    background: linear-gradient(90deg, transparent, rgba(245,215,110,0.95), transparent);
+    opacity:0.0;
+    transform: translateY(-50%);
+    pointer-events:none;
+  }
+
+  .grid{
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap:12px;
+  }
+
+  .reel{
+    border-radius: 16px;
+    border:1px solid rgba(255,255,255,0.08);
+    background: rgba(0,0,0,0.18);
+    overflow:hidden;
+    height: 330px;
+    position:relative;
+  }
+
+  .strip{
+    position:absolute;
+    left:0; right:0;
+    top:0;
+    will-change: transform;
+  }
+
+  .cell{
+    height:110px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:44px;
+    line-height:1;
+    user-select:none;
+    position:relative;
+  }
+  .cell::after{
+    content:"";
+    position:absolute;
+    left:16px; right:16px;
+    bottom:0;
+    height:1px;
+    background: rgba(255,255,255,0.06);
+  }
+
+  .mask{
+    pointer-events:none;
+    position:absolute;
+    inset:0;
+    background:
+      linear-gradient(180deg, rgba(0,0,0,0.85), transparent 20%, transparent 80%, rgba(0,0,0,0.85));
+  }
+
+  .payline{
+    position:absolute;
+    left:18px; right:18px;
+    top:50%;
+    height: 0;
+    border-top: 2px solid rgba(245,215,110,0.00);
+    transform: translateY(-50%);
+    pointer-events:none;
+  }
+
+  .payoutBox{
+    margin-top:12px;
+    display:grid;
+    grid-template-columns: 1fr;
+    gap:10px;
+  }
+  .tinyGrid{
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap:10px;
+  }
+  .mini{
+    border-radius: 16px;
+    border:1px solid rgba(255,255,255,0.07);
+    background: rgba(0,0,0,0.18);
+    padding:12px;
+  }
+  .mini .k{
+    font-size:12px;
+    color:var(--muted);
+    letter-spacing:0.6px;
+    text-transform:uppercase;
+  }
+  .mini .v{
+    margin-top:6px;
+    font-size:14px;
+    font-weight:900;
+    letter-spacing:0.2px;
+  }
+
+  /* Toast */
+  .toast{
+    position:fixed;
+    left:50%;
+    bottom:22px;
+    transform: translateX(-50%);
+    padding:10px 12px;
+    border-radius: 999px;
+    border:1px solid rgba(255,255,255,0.08);
+    background: rgba(0,0,0,0.35);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: var(--text);
+    font-size:13px;
+    opacity:0;
+    z-index:9999;
+    transition: opacity .18s ease, transform .18s ease;
+    box-shadow: 0 16px 60px rgba(0,0,0,0.55);
+    white-space:nowrap;
+  }
+  .toast.show{
+    opacity:1;
+    transform: translateX(-50%) translateY(-2px);
+  }
+  .toast b{ color: var(--gold2); }
+
+  /* Overlay modal (insufficient funds only) */
+  .overlay{
+    position:fixed;
+    inset:0;
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:9998;
+    padding:18px;
+  }
+  .overlay.show{ display:flex; }
+
+  /* Bevelled portrait box w/ gold trim */
+  .modal{
+    width:min(392px, 92vw);
+    border-radius: 22px;
+    background:
+      linear-gradient(180deg, rgba(14,15,20,0.92), rgba(6,6,8,0.90));
+    border: 1px solid rgba(212,175,55,0.40);
+    box-shadow:
+      0 30px 100px rgba(0,0,0,0.70),
+      inset 0 1px 0 rgba(255,255,255,0.06),
+      inset 0 -1px 0 rgba(0,0,0,0.55);
+    position:relative;
+    overflow:hidden;
+    transform: translateY(6px) scale(0.98);
+    animation: pop .18s ease forwards;
+  }
+  .modal::before{
+    content:"";
+    position:absolute;
+    inset:-2px;
+    border-radius: 24px;
+    background: linear-gradient(180deg, rgba(245,215,110,0.10), transparent 45%);
+    pointer-events:none;
+  }
+  @keyframes pop{ to{ transform: translateY(0) scale(1); } }
+  .modal .inner{ padding:16px; position:relative; }
+  .modal .hdr{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:10px;
+  }
+  .modal .hdr b{ letter-spacing:0.6px; font-size:14px; }
+  .x{
+    cursor:pointer;
+    width:34px; height:34px;
+    border-radius: 12px;
+    border:1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.03);
+    color: var(--text);
+    display:grid;
+    place-items:center;
+    user-select:none;
+  }
+  .modal .body{
+    color: var(--muted);
+    font-size:13px;
+    line-height:1.6;
+    margin-bottom:12px;
+  }
+  .modal .cta{
+    margin-top:12px;
+    display:flex;
+    gap:10px;
+    justify-content:flex-end;
+    flex-wrap:wrap;
+  }
+
+  /* Win flash */
+  .winFlash .glowLine{ opacity: 0.85; }
+  .winFlash .payline{ border-top-color: rgba(245,215,110,0.75); }
+  .winFlash .window{
+    box-shadow:
+      0 30px 120px rgba(0,0,0,0.55),
+      0 0 40px rgba(212,175,55,0.18),
+      inset 0 1px 0 rgba(255,255,255,0.06),
+      inset 0 -1px 0 rgba(0,0,0,0.55);
+  }
+
+  @media (max-width: 980px){
+    .layout{ grid-template-columns: 1fr; }
+    .nav{ display:none; }
+    .acct{ min-width:auto; }
+    .reel{ height: 300px; }
+    .cell{ height: 100px; font-size: 40px; }
+  }
+</style>
+</head>
+
+<body>
+<div class="top-note">SERVER OPEN</div>
+
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <img alt="Logo" src="https://s3-eu-west-1.amazonaws.com/tpd/logos/67bdce6bfa82955c61946b3e/0x0.png" />
+      <div class="title">
+        <strong>Slots</strong>
+        <span>3×3 • Middle payline</span>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <a class="pill" href="../index.html">Lobby</a>
+      <a class="pill" href="plinko.html">Plinko</a>
+      <a class="pill" href="crash.html">Crash</a>
+      <a class="pill" href="../profile.html">Profile</a>
+    </nav>
+
+    <div class="acct">
+      <div class="badge" title="Your balance">
+        <div>
+          <div class="label" id="userLabel">Guest</div>
+          <div class="value coins" id="balanceText">0 Coins</div>
+        </div>
+      </div>
+      <button class="btn primary" id="authBtn">Login</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- Controls -->
+    <section class="card">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;">
+        <div>
+          <h1>Spin</h1>
+          <div class="sub">Middle row pays (left→right). 3 of a kind pays the most.</div>
+        </div>
+        <a class="btn" href="../index.html" style="text-decoration:none;display:inline-flex;align-items:center;">Back</a>
+      </div>
+
+      <div class="field">
+        <label for="bet">Bet amount</label>
+        <input class="input" id="bet" type="number" min="1" step="1" value="250" />
+        <div class="chipsRow" aria-label="Quick bet">
+          <div class="chipBtn" data-bet="50">50</div>
+          <div class="chipBtn" data-bet="250">250</div>
+          <div class="chipBtn" data-bet="500">500</div>
+          <div class="chipBtn" data-bet="1000">1,000</div>
+          <div class="chipBtn" data-bet="5000">5,000</div>
+        </div>
+      </div>
+
+      <div class="statusBar">
+        <div>
+          <div class="k">Status</div>
+          <div class="v" id="statusText">Ready</div>
+        </div>
+        <div>
+          <div class="k">Last Win</div>
+          <div class="v gold" id="lastWinText">0</div>
+        </div>
+        <div>
+          <div class="k">Multiplier</div>
+          <div class="v" id="lastMultText">—</div>
+        </div>
+      </div>
+
+      <div class="sub" style="margin-top:12px;">
+        Payouts (middle row):
+        <br>🍒🍒🍒 = 3×
+        <br>🍋🍋🍋 = 4×
+        <br>🍇🍇🍇 = 6×
+        <br>🔔🔔🔔 = 10×
+        <br>⭐️⭐️⭐️ = 20×
+        <br>7️⃣7️⃣7️⃣ = 50×
+        <br><span style="color:var(--muted)">Any 2 of a kind = 1.25×</span>
+      </div>
+
+      <div class="chipsRow" style="margin-top:12px;">
+        <button class="btn primary" id="spinBtn">SPIN</button>
+        <button class="btn" id="autoBtn">AUTO (10)</button>
+        <button class="btn" id="stopAutoBtn" disabled>STOP</button>
+      </div>
+
+      <div class="sub" style="margin-top:10px;">
+        Controls: <b>Space</b> to Spin.
+      </div>
+    </section>
+
+    <!-- Machine -->
+    <section class="card machine" id="machine">
+      <div class="machineHdr">
+        <div>
+          <h1>Machine</h1>
+          <div class="sub" id="subText">Tap spin to start.</div>
+        </div>
+        <div class="tag" id="tag">READY</div>
+      </div>
+
+      <div class="reelArea">
+        <div class="window">
+          <div class="glowLine"></div>
+          <div class="payline"></div>
+
+          <div class="grid" id="grid">
+            <!-- reels inject -->
+          </div>
+
+          <div class="mask"></div>
+        </div>
+
+        <div class="payoutBox">
+          <div class="tinyGrid">
+            <div class="mini">
+              <div class="k">Line</div>
+              <div class="v" id="lineText">—</div>
+            </div>
+            <div class="mini">
+              <div class="k">Payout</div>
+              <div class="v coins" id="payoutText">0</div>
+            </div>
+            <div class="mini">
+              <div class="k">Balance</div>
+              <div class="v coins" id="balMini">0</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- Insufficient funds modal -->
+<div class="overlay" id="insOverlay" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" aria-label="Insufficient funds">
+    <div class="inner">
+      <div class="hdr">
+        <b>Insufficient Funds</b>
+        <div class="x" id="insClose" title="Close">✕</div>
+      </div>
+      <div class="body">
+        You don’t have enough coins to spin with this bet amount.
+      </div>
+      <div class="cta">
+        <button class="btn" id="insCancel" type="button">Close</button>
+        <a class="btn primary" href="../profile.html" style="text-decoration:none;">Go Profile</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===== Wallet/session ===== */
+const LS = { user:"sim_user", balance:"sim_balance", display:"sim_display_name" };
+const $ = (id) => document.getElementById(id);
+
+function getBalance(){
+  const raw = localStorage.getItem(LS.balance);
+  const n = Number(raw);
+  return Number.isFinite(n) ? n : 0;
+}
+function setBalance(n){
+  localStorage.setItem(LS.balance, String(Math.max(0, Math.floor(n))));
+}
+function fmtCoins(n){ return `${n.toLocaleString("en-GB")} Coins`; }
+
+function refreshHeader(){
+  const user = localStorage.getItem(LS.display) || localStorage.getItem(LS.user) || "Guest";
+  $("userLabel").textContent = user;
+  $("balanceText").textContent = fmtCoins(getBalance());
+  $("balMini").textContent = fmtCoins(getBalance());
+  $("authBtn").textContent = (localStorage.getItem(LS.user)) ? "Profile" : "Login";
+}
+$("authBtn").addEventListener("click", () => {
+  window.location.href = localStorage.getItem(LS.user) ? "../profile.html" : "../login.html";
+});
+
+const starterKey = "sim_starter_given";
+if(getBalance() === 0 && !localStorage.getItem(starterKey)){
+  setBalance(5000);
+  localStorage.setItem(starterKey, "1");
+}
+refreshHeader();
+
+/* ===== Toast ===== */
+const toastEl = $("toast");
+function toast(html){
+  toastEl.innerHTML = html;
+  toastEl.classList.add("show");
+  clearTimeout(toastEl._t);
+  toastEl._t = setTimeout(() => toastEl.classList.remove("show"), 1400);
+}
+
+/* ===== Insufficient funds modal ===== */
+const insOverlay = $("insOverlay");
+function openIns(){ insOverlay.classList.add("show"); insOverlay.setAttribute("aria-hidden","false"); }
+function closeIns(){ insOverlay.classList.remove("show"); insOverlay.setAttribute("aria-hidden","true"); }
+$("insClose").addEventListener("click", closeIns);
+$("insCancel").addEventListener("click", closeIns);
+insOverlay.addEventListener("click", (e)=>{ if(e.target === insOverlay) closeIns(); });
+
+/* ===== Slot logic ===== */
+const betInput = $("bet");
+document.querySelectorAll(".chipBtn").forEach(b=>{
+  b.addEventListener("click", ()=>{
+    betInput.value = String(Number(b.dataset.bet || "1"));
+  });
+});
+
+function clampBet(){
+  let n = Number(betInput.value);
+  if(!Number.isFinite(n) || n <= 0) n = 1;
+  betInput.value = String(Math.floor(n));
+  return Math.floor(n);
+}
+
+const spinBtn = $("spinBtn");
+const autoBtn = $("autoBtn");
+const stopAutoBtn = $("stopAutoBtn");
+
+const statusText = $("statusText");
+const lastWinText = $("lastWinText");
+const lastMultText = $("lastMultText");
+
+const subText = $("subText");
+const tag = $("tag");
+const machine = $("machine");
+
+const lineText = $("lineText");
+const payoutText = $("payoutText");
+
+const symbols = [
+  { id:"cherry", glyph:"🍒", w: 34 },
+  { id:"lemon",  glyph:"🍋", w: 28 },
+  { id:"grape",  glyph:"🍇", w: 18 },
+  { id:"bell",   glyph:"🔔", w: 10 },
+  { id:"star",   glyph:"⭐️", w: 6 },
+  { id:"seven",  glyph:"7️⃣", w: 4 }
+];
+
+// payout map for 3 of a kind
+const pay3 = {
+  cherry: 3,
+  lemon:  4,
+  grape:  6,
+  bell:   10,
+  star:   20,
+  seven:  50
+};
+
+// Weighted random pick
+function pickSymbol(){
+  const total = symbols.reduce((a,s)=>a+s.w,0);
+  let r = Math.random() * total;
+  for(const s of symbols){
+    r -= s.w;
+    if(r <= 0) return s;
+  }
+  return symbols[0];
+}
+
+// Create 3 reels. Each reel is an array of items used for the spin strip.
+const gridEl = $("grid");
+const reels = [];
+const REEL_VISIBLE = 3;
+const CELL_H = 110; // must match CSS
+const STRIP_COUNT = 24; // items in strip
+
+function buildReels(){
+  gridEl.innerHTML = "";
+  reels.length = 0;
+
+  for(let r=0;r<3;r++){
+    const reel = document.createElement("div");
+    reel.className = "reel";
+
+    const strip = document.createElement("div");
+    strip.className = "strip";
+
+    // build strip items
+    const items = [];
+    for(let i=0;i<STRIP_COUNT;i++){
+      const s = pickSymbol();
+      items.push(s);
+      const cell = document.createElement("div");
+      cell.className = "cell";
+      cell.textContent = s.glyph;
+      strip.appendChild(cell);
+    }
+
+    reel.appendChild(strip);
+    gridEl.appendChild(reel);
+
+    reels.push({ reel, strip, items, y:0, targetY:0, spinning:false });
+  }
+}
+buildReels();
+
+function setUI(state){
+  if(state === "ready"){
+    tag.textContent = "READY";
+    statusText.textContent = "Ready";
+    subText.textContent = "Tap spin to start.";
+    spinBtn.disabled = false;
+    autoBtn.disabled = false;
+    stopAutoBtn.disabled = true;
+  }
+  if(state === "spinning"){
+    tag.textContent = "SPINNING";
+    statusText.textContent = "Spinning";
+    subText.textContent = "Good luck.";
+    spinBtn.disabled = true;
+    autoBtn.disabled = true;
+    stopAutoBtn.disabled = autoMode;
+  }
+  if(state === "result"){
+    tag.textContent = "RESULT";
+    statusText.textContent = "Result";
+    spinBtn.disabled = false;
+    autoBtn.disabled = false;
+    stopAutoBtn.disabled = !autoMode;
+  }
+}
+
+let spinning = false;
+let autoMode = false;
+let autoLeft = 0;
+let raf = 0;
+
+function stopWinFlash(){
+  machine.classList.remove("winFlash");
+}
+function doWinFlash(){
+  machine.classList.add("winFlash");
+  setTimeout(stopWinFlash, 600);
+}
+
+function evaluatePayline(midRow){
+  // midRow is [s0,s1,s2] as symbol ids
+  const [a,b,c] = midRow;
+
+  // 3 of a kind
+  if(a === b && b === c){
+    const mult = pay3[a] || 0;
+    return { mult, kind:"3", line:`${a} ${a} ${a}` };
+  }
+
+  // 2 of a kind
+  if(a === b || b === c || a === c){
+    return { mult: 1.25, kind:"2", line:`pair` };
+  }
+
+  // no win
+  return { mult: 0, kind:"0", line:`—` };
+}
+
+function getMiddleRowResult(){
+  // We will determine the visible 3 symbols based on final stop index.
+  // We deliberately stop on a specific symbol for each reel (middle slot).
+  const row = reels.map(r => r.stopSymbol.id);
+  return row; // symbol IDs for middle row
+}
+
+function updateResultUI(mult, payout){
+  lastMultText.textContent = (mult > 0) ? `${mult}×` : "—";
+  lastWinText.textContent = payout.toLocaleString("en-GB");
+  payoutText.textContent = fmtCoins(payout);
+  $("balMini").textContent = fmtCoins(getBalance());
+}
+
+function spinOnce(){
+  if(spinning) return;
+
+  clampBet();
+  const bet = Number(betInput.value);
+  if(bet > getBalance()){
+    openIns();
+    return;
+  }
+
+  // Take bet first
+  setBalance(getBalance() - bet);
+  refreshHeader();
+
+  spinning = true;
+  setUI("spinning");
+  stopWinFlash();
+
+  lineText.textContent = "—";
+  payoutText.textContent = "0";
+  lastMultText.textContent = "—";
+  lastWinText.textContent = "0";
+
+  // Choose stop symbols for each reel (middle row)
+  // We bias slightly so wins happen sometimes but not too often.
+  const winBias = 0.22; // tweak feel
+  let forceTriple = (Math.random() < (winBias * 0.22));
+  let forcePair   = (!forceTriple && Math.random() < winBias);
+
+  let tripleSym = null;
+  if(forceTriple) tripleSym = pickSymbol();
+
+  let pairSym = null;
+  if(forcePair) pairSym = pickSymbol();
+
+  // For each reel, choose a stop symbol (middle cell)
+  reels.forEach((r, idx)=>{
+    r.spinning = true;
+
+    let chosen;
+    if(forceTriple){
+      chosen = tripleSym;
+    }else if(forcePair){
+      // choose 2 reels to match
+      const matchReels = [0,1,2].sort(()=>Math.random()-0.5).slice(0,2);
+      chosen = matchReels.includes(idx) ? pairSym : pickSymbol();
+    }else{
+      chosen = pickSymbol();
+    }
+
+    r.stopSymbol = chosen;
+
+    // Animate: we rebuild strip so that stopSymbol will land in the middle after spin.
+    // We do this by ensuring a known index for the stop symbol near the end.
+    // We'll create a new items array with the chosen symbol placed at stopIndex.
+    const stopIndex = STRIP_COUNT - 3; // ensures enough travel
+    r.items = [];
+    r.strip.innerHTML = "";
+    for(let i=0;i<STRIP_COUNT;i++){
+      let s = pickSymbol();
+      if(i === stopIndex) s = chosen;
+      r.items.push(s);
+
+      const cell = document.createElement("div");
+      cell.className = "cell";
+      cell.textContent = s.glyph;
+      r.strip.appendChild(cell);
+    }
+
+    // Starting y and target y: make the reel travel multiple loops
+    const loops = 2 + idx; // stagger
+    r.y = 0;
+    // We want middle window to show stopIndex at center:
+    // center row corresponds to offset of 1 cell down within reel window (0,1,2)
+    // visible center is y such that strip translated up by (stopIndex - 1) * CELL_H
+    const stopY = (stopIndex - 1) * CELL_H;
+
+    r.targetY = (loops * STRIP_COUNT * CELL_H) + stopY;
+    r.startTime = performance.now();
+    r.duration = 1300 + idx * 250; // stagger end
+  });
+
+  const start = performance.now();
+  const maxDur = Math.max(...reels.map(r=>r.duration));
+
+  function easeOutCubic(x){ return 1 - Math.pow(1 - x, 3); }
+
+  function tick(now){
+    const t = now - start;
+
+    reels.forEach((r, idx)=>{
+      const p = Math.min(1, (now - r.startTime) / r.duration);
+      const e = easeOutCubic(p);
+
+      // current y moves from 0 -> targetY
+      const cur = r.targetY * e;
+
+      // Visual wrap: translate with modulo to simulate continuous reel
+      // but since we rebuilt strip every spin, we can just translate negative.
+      r.strip.style.transform = `translateY(${-cur}px)`;
+
+      if(p >= 1) r.spinning = false;
+    });
+
+    if(t < maxDur + 60){
+      raf = requestAnimationFrame(tick);
+      return;
+    }
+
+    // Final snap (avoid subpixel blur)
+    reels.forEach(r=>{
+      const cur = r.targetY;
+      r.strip.style.transform = `translateY(${-Math.round(cur)}px)`;
+      r.spinning = false;
+    });
+
+    // Evaluate middle row
+    const mid = getMiddleRowResult(); // ids
+    const evalRes = evaluatePayline(mid);
+    const mult = evalRes.mult;
+
+    const payout = Math.floor(bet * mult);
+    if(payout > 0){
+      setBalance(getBalance() + payout);
+      refreshHeader();
+      doWinFlash();
+      toast(`WIN • <b>${mult}×</b> (+${payout.toLocaleString("en-GB")})`);
+      subText.textContent = "Winner.";
+    }else{
+      toast("No win");
+      subText.textContent = "Try again.";
+    }
+
+    lineText.textContent = (mult > 0) ? `MID • ${mid.join(" | ")}` : "—";
+    updateResultUI(mult, payout);
+
+    spinning = false;
+    setUI("result");
+
+    if(autoMode){
+      autoLeft--;
+      if(autoLeft <= 0){
+        autoMode = false;
+        stopAutoBtn.disabled = true;
+        autoBtn.textContent = "AUTO (10)";
+      }else{
+        autoBtn.textContent = `AUTO (${autoLeft})`;
+        // tiny delay between spins
+        setTimeout(()=>{ if(autoMode && !spinning) spinOnce(); }, 350);
+      }
+    }
+  }
+
+  raf = requestAnimationFrame(tick);
+}
+
+spinBtn.addEventListener("click", spinOnce);
+
+autoBtn.addEventListener("click", ()=>{
+  if(spinning) return;
+  autoMode = true;
+  autoLeft = 10;
+  autoBtn.textContent = `AUTO (${autoLeft})`;
+  stopAutoBtn.disabled = false;
+  spinOnce();
+});
+
+stopAutoBtn.addEventListener("click", ()=>{
+  autoMode = false;
+  stopAutoBtn.disabled = true;
+  autoBtn.textContent = "AUTO (10)";
+  toast("Auto stopped");
+});
+
+window.addEventListener("keydown", (e)=>{
+  if(e.key === " "){
+    e.preventDefault();
+    if(!spinning) spinOnce();
+  }
+});
+
+/* init */
+setUI("ready");
+</script>
+</body>
+</html>
