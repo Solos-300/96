@@ -1,0 +1,290 @@
+<!-- games/plinko.html -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Plinko</title>
+
+<style>
+:root{
+  --bg0:#050608;
+  --bg1:#0b0c10;
+  --bg2:#12131a;
+  --text:#e9ebf2;
+  --muted:#a7adbd;
+  --gold:#d4af37;
+  --gold2:#f5d76e;
+  --stroke: rgba(255,255,255,0.08);
+  --shadow: 0 20px 70px rgba(0,0,0,.6);
+  --r:18px;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:system-ui,Segoe UI,Roboto,Arial;
+  color:var(--text);
+  background:
+    radial-gradient(1200px 600px at 15% 0%, rgba(212,175,55,.08), transparent 60%),
+    linear-gradient(135deg,var(--bg0),var(--bg1) 45%,var(--bg2));
+}
+
+/* top bar */
+.top-note{
+  position:fixed;
+  top:0;left:0;width:100%;
+  background:#0b0c10;
+  border-bottom:1px solid rgba(212,175,55,.3);
+  color:var(--gold2);
+  text-align:center;
+  font-size:12px;
+  padding:6px 0;
+  z-index:999;
+}
+
+/* header */
+.wrap{max-width:1100px;margin:auto;padding:60px 16px 40px}
+header{
+  display:flex;justify-content:space-between;align-items:center;
+  border:1px solid var(--stroke);
+  background:rgba(0,0,0,.3);
+  padding:12px 16px;border-radius:var(--r);
+  box-shadow:var(--shadow);
+}
+.brand{display:flex;align-items:center;gap:10px}
+.brand img{width:40px}
+.badge{
+  padding:8px 12px;border-radius:999px;
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.1);
+  font-size:13px;
+}
+.coins{color:var(--gold2);font-weight:700}
+
+/* layout */
+.layout{
+  margin-top:14px;
+  display:grid;
+  grid-template-columns:360px 1fr;
+  gap:14px;
+}
+.card{
+  border:1px solid var(--stroke);
+  background:rgba(0,0,0,.3);
+  border-radius:var(--r);
+  padding:16px;
+  box-shadow:var(--shadow);
+}
+
+/* controls */
+input{
+  width:100%;padding:12px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.1);
+  background:#0b0c10;color:#fff;
+}
+.btn{
+  margin-top:10px;
+  padding:12px;
+  border-radius:12px;
+  border:1px solid rgba(212,175,55,.4);
+  background:linear-gradient(#1a1a1a,#0b0c10);
+  color:var(--gold2);
+  cursor:pointer;
+  font-weight:600;
+}
+.btn:hover{background:#111}
+
+/* board */
+.boardWrap{
+  position:relative;
+}
+canvas{
+  width:100%;
+  height:520px;
+  display:block;
+}
+.multRow{
+  display:grid;
+  grid-template-columns:repeat(9,1fr);
+  gap:6px;
+  margin-top:8px;
+}
+.mult{
+  text-align:center;
+  padding:8px 0;
+  font-size:12px;
+  border-radius:8px;
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.08);
+}
+.mult.big{color:var(--gold2);font-weight:700}
+
+@media(max-width:900px){
+  .layout{grid-template-columns:1fr}
+}
+</style>
+</head>
+
+<body>
+
+<div class="top-note">SERVER OPEN</div>
+
+<div class="wrap">
+<header>
+  <div class="brand">
+    <img src="https://s3-eu-west-1.amazonaws.com/tpd/logos/67bdce6bfa82955c61946b3e/0x0.png">
+    <strong>Plinko</strong>
+  </div>
+
+  <div class="badge">
+    <span id="user">Guest</span> • 
+    <span class="coins" id="bal">0</span>
+  </div>
+</header>
+
+<div class="layout">
+
+<!-- controls -->
+<div class="card">
+  <h3>Drop Ball</h3>
+
+  <label>Bet</label>
+  <input id="bet" type="number" value="100">
+
+  <button class="btn" id="dropBtn">DROP</button>
+
+  <p style="color:var(--muted);font-size:12px;margin-top:8px">
+    Drop a ball and see where it lands.
+  </p>
+</div>
+
+<!-- board -->
+<div class="card">
+  <div class="boardWrap">
+    <canvas id="c"></canvas>
+  </div>
+
+  <div class="multRow" id="multRow"></div>
+</div>
+
+</div>
+</div>
+
+<script>
+// balance system
+const LS={user:"sim_user",balance:"sim_balance",display:"sim_display_name"}
+function getBal(){return Number(localStorage.getItem(LS.balance)||0)}
+function setBal(v){localStorage.setItem(LS.balance,v)}
+function fmt(n){return n.toLocaleString("en-GB")+" Coins"}
+
+function refresh(){
+  document.getElementById("bal").textContent=fmt(getBal())
+  document.getElementById("user").textContent=
+    localStorage.getItem(LS.display)||localStorage.getItem(LS.user)||"Guest"
+}
+if(getBal()===0){setBal(5000)}
+refresh()
+
+// multipliers
+const mults=[0,0.5,1,2,5,2,1,0.5,0]
+const multRow=document.getElementById("multRow")
+mults.forEach(m=>{
+  const d=document.createElement("div")
+  d.className="mult"+(m>=5?" big":"")
+  d.textContent=m+"×"
+  multRow.appendChild(d)
+})
+
+// canvas
+const canvas=document.getElementById("c")
+const ctx=canvas.getContext("2d")
+
+function resize(){
+  canvas.width=canvas.clientWidth
+  canvas.height=canvas.clientHeight
+}
+resize()
+window.addEventListener("resize",resize)
+
+const pegs=[]
+const rows=10
+const spacing=canvas.width/10
+
+function build(){
+  pegs.length=0
+  for(let y=0;y<rows;y++){
+    for(let x=0;x<9;x++){
+      pegs.push({
+        x:(x+0.5+(y%2?0.5:0))*spacing,
+        y:60+y*40
+      })
+    }
+  }
+}
+build()
+
+function draw(){
+  ctx.clearRect(0,0,canvas.width,canvas.height)
+  ctx.fillStyle="rgba(255,255,255,.2)"
+  pegs.forEach(p=>{
+    ctx.beginPath()
+    ctx.arc(p.x,p.y,4,0,Math.PI*2)
+    ctx.fill()
+  })
+}
+
+draw()
+
+let ball=null
+
+function drop(){
+  const bet=Number(document.getElementById("bet").value)
+  if(bet>getBal()){alert("No funds");return}
+
+  setBal(getBal()-bet)
+  refresh()
+
+  ball={x:canvas.width/2,y:10,vy:0,bet}
+}
+
+document.getElementById("dropBtn").onclick=drop
+
+function loop(){
+  requestAnimationFrame(loop)
+  draw()
+
+  if(ball){
+    ball.vy+=0.2
+    ball.y+=ball.vy
+
+    pegs.forEach(p=>{
+      const dx=ball.x-p.x
+      const dy=ball.y-p.y
+      const d=Math.sqrt(dx*dx+dy*dy)
+      if(d<8){
+        ball.x+=dx>0?6:-6
+      }
+    })
+
+    ctx.fillStyle= "#f5d76e"
+    ctx.beginPath()
+    ctx.arc(ball.x,ball.y,6,0,Math.PI*2)
+    ctx.fill()
+
+    if(ball.y>canvas.height-40){
+      const slot=Math.floor(ball.x/(canvas.width/9))
+      const mult=mults[slot]||0
+      const win=Math.floor(ball.bet*mult)
+
+      setBal(getBal()+win)
+      refresh()
+      ball=null
+    }
+  }
+}
+loop()
+</script>
+</body>
+</html>
