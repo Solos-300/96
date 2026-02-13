@@ -1,0 +1,524 @@
+<!-- profile.html (Account-only version: no history/activity feed, no add-funds UI) -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Profile</title>
+
+  <style>
+    :root{
+      --bg0:#050608;
+      --bg1:#0b0c10;
+      --bg2:#12131a;
+
+      --panel0: rgba(18,19,26,0.72);
+      --panel1: rgba(10,10,14,0.72);
+
+      --text:#e9ebf2;
+      --muted:#a7adbd;
+
+      --gold:#d4af37;
+      --gold2:#f5d76e;
+
+      --stroke: rgba(255,255,255,0.08);
+      --shadow2: 0 16px 60px rgba(0,0,0,0.55);
+
+      --r: 18px;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color:var(--text);
+      background:
+        radial-gradient(1200px 600px at 15% 0%, rgba(212,175,55,0.08), transparent 60%),
+        radial-gradient(900px 500px at 85% 10%, rgba(245,215,110,0.06), transparent 55%),
+        linear-gradient(135deg, var(--bg0), var(--bg1) 45%, var(--bg2));
+      overflow-x:hidden;
+    }
+
+    /* Top disclosure bar (subtle, premium) */
+    .top-note{
+      position:fixed;
+      top:0; left:0;
+      width:100%;
+      z-index:9999;
+      background: linear-gradient(90deg, rgba(5,6,8,0.92), rgba(18,19,26,0.92));
+      border-bottom: 1px solid rgba(212,175,55,0.22);
+      color: rgba(245,215,110,0.95);
+      font-size:12px;
+      letter-spacing:0.6px;
+      padding:6px 12px;
+      text-align:center;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .wrap{
+      max-width:980px;
+      margin:0 auto;
+      padding: 62px 18px 30px;
+    }
+
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      padding: 14px 16px;
+      border:1px solid var(--stroke);
+      background: linear-gradient(180deg, var(--panel0), var(--panel1));
+      border-radius: calc(var(--r) + 2px);
+      box-shadow: var(--shadow2);
+      position:sticky;
+      top:34px;
+      z-index:50;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      min-width: 240px;
+    }
+    .brand img{
+      width:42px;
+      height:42px;
+      object-fit:contain;
+      filter: drop-shadow(0 10px 18px rgba(0,0,0,0.55));
+    }
+    .brand .title{
+      display:flex;
+      flex-direction:column;
+      line-height:1.1;
+    }
+    .brand .title strong{
+      font-size:14px;
+      letter-spacing:0.6px;
+    }
+    .brand .title span{
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    .nav{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      justify-content:center;
+      flex:1;
+    }
+    .pill{
+      text-decoration:none;
+      color:var(--text);
+      font-size:13px;
+      padding:10px 12px;
+      border-radius: 999px;
+      border:1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.03);
+      transition: transform .15s ease, border-color .15s ease, background .15s ease;
+      user-select:none;
+    }
+    .pill:hover{
+      transform: translateY(-1px);
+      border-color: rgba(212,175,55,0.35);
+      background: rgba(212,175,55,0.06);
+    }
+
+    .acct{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      justify-content:flex-end;
+      min-width: 280px;
+    }
+    .badge{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 12px;
+      border-radius: 999px;
+      border:1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.03);
+      white-space:nowrap;
+    }
+    .badge .label{
+      font-size:12px;
+      color:var(--muted);
+      letter-spacing:0.4px;
+    }
+    .badge .value{
+      font-size:13px;
+      font-weight:700;
+      letter-spacing:0.3px;
+    }
+    .coins{
+      color: var(--gold2);
+      text-shadow: 0 0 18px rgba(212,175,55,0.18);
+    }
+
+    .btn{
+      cursor:pointer;
+      border:1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.03);
+      color: var(--text);
+      padding:10px 12px;
+      border-radius: 12px;
+      font-size:13px;
+      transition: transform .15s ease, border-color .15s ease, background .15s ease;
+      user-select:none;
+    }
+    .btn:hover{
+      transform: translateY(-1px);
+      border-color: rgba(212,175,55,0.35);
+      background: rgba(212,175,55,0.06);
+    }
+    .btn.primary{
+      border-color: rgba(212,175,55,0.45);
+      background: linear-gradient(180deg, rgba(212,175,55,0.24), rgba(212,175,55,0.10));
+      box-shadow: 0 10px 30px rgba(212,175,55,0.12);
+    }
+    .btn.danger{
+      border-color: rgba(255,80,80,0.25);
+      background: rgba(255,80,80,0.06);
+    }
+
+    .card{
+      margin-top:16px;
+      border:1px solid rgba(255,255,255,0.08);
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+      border-radius: var(--r);
+      box-shadow: var(--shadow2);
+      padding:16px;
+      position:relative;
+      overflow:hidden;
+    }
+    .card::before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      background: radial-gradient(520px 240px at 18% 0%, rgba(212,175,55,0.12), transparent 55%);
+      opacity:0.9;
+      pointer-events:none;
+    }
+    .card > *{ position:relative; }
+
+    h1{
+      margin:0;
+      font-size:18px;
+      letter-spacing:0.6px;
+    }
+    .sub{
+      margin-top:6px;
+      color:var(--muted);
+      font-size:13.5px;
+      line-height:1.6;
+    }
+
+    .statGrid{
+      margin-top:12px;
+      display:grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap:10px;
+    }
+    .stat{
+      border-radius: 16px;
+      border:1px solid rgba(255,255,255,0.07);
+      background: rgba(0,0,0,0.18);
+      padding:12px;
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+    .stat .k{
+      font-size:12px;
+      color:var(--muted);
+      letter-spacing:0.6px;
+      text-transform:uppercase;
+    }
+    .stat .v{
+      font-size:16px;
+      font-weight:800;
+      letter-spacing:0.3px;
+    }
+
+    .divider{
+      height:1px;
+      background: rgba(255,255,255,0.08);
+      margin:14px 0;
+    }
+
+    .field{
+      display:grid;
+      gap:8px;
+      margin-top:10px;
+    }
+    label{
+      font-size:12px;
+      color:var(--muted);
+      letter-spacing:0.6px;
+      text-transform:uppercase;
+    }
+    .input{
+      width:100%;
+      border-radius: 14px;
+      border:1px solid rgba(255,255,255,0.08);
+      background: rgba(0,0,0,0.18);
+      color:var(--text);
+      padding:12px 12px;
+      outline:none;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+
+    .row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:flex-start;
+      margin-top:12px;
+    }
+
+    /* Toast */
+    .toast{
+      position:fixed;
+      left:50%;
+      bottom:22px;
+      transform: translateX(-50%);
+      padding:10px 12px;
+      border-radius: 999px;
+      border:1px solid rgba(255,255,255,0.08);
+      background: rgba(0,0,0,0.35);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      color: var(--text);
+      font-size:13px;
+      opacity:0;
+      z-index:9999;
+      transition: opacity .18s ease, transform .18s ease;
+      box-shadow: 0 16px 60px rgba(0,0,0,0.55);
+      white-space:nowrap;
+    }
+    .toast.show{
+      opacity:1;
+      transform: translateX(-50%) translateY(-2px);
+    }
+    .toast b{ color: var(--gold2); }
+
+    @media (max-width: 980px){
+      .nav{ display:none; }
+      .acct{ min-width:auto; }
+      .statGrid{ grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="top-note">Play-for-fun simulator • No real money • No withdrawals</div>
+
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <img alt="Logo" src="https://s3-eu-west-1.amazonaws.com/tpd/logos/67bdce6bfa82955c61946b3e/0x0.png" />
+        <div class="title">
+          <strong>Profile</strong>
+          <span>Account</span>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <a class="pill" href="index.html">Lobby</a>
+        <a class="pill" href="games/chicken.html">Chicken Cross</a>
+        <a class="pill" href="login.html">Login</a>
+      </nav>
+
+      <div class="acct">
+        <div class="badge">
+          <div>
+            <div class="label" id="userLabel">Guest</div>
+            <div class="value coins" id="balanceText">0 Coins</div>
+          </div>
+        </div>
+        <button class="btn danger" id="logoutBtn">Logout</button>
+      </div>
+    </header>
+
+    <section class="card">
+      <h1>Account</h1>
+      <div class="sub">
+        Manage your local profile details. Wallet balance is shown for reference (no funds tools on this page).
+      </div>
+
+      <div class="statGrid">
+        <div class="stat">
+          <div class="k">Username</div>
+          <div class="v" id="usernameStat">Guest</div>
+        </div>
+        <div class="stat">
+          <div class="k">Wallet</div>
+          <div class="v coins" id="walletStat">0 Coins</div>
+        </div>
+        <div class="stat">
+          <div class="k">VIP</div>
+          <div class="v" id="vipStat">Bronze I</div>
+        </div>
+        <div class="stat">
+          <div class="k">Total Played</div>
+          <div class="v" id="playedStat">0</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <h1 style="font-size:14px;letter-spacing:0.9px;text-transform:uppercase;color:rgba(245,215,110,0.92);">
+        Settings
+      </h1>
+
+      <div class="field">
+        <label for="displayName">Display name</label>
+        <input class="input" id="displayName" type="text" maxlength="20" placeholder="Your name" />
+      </div>
+
+      <div class="row">
+        <button class="btn primary" id="saveNameBtn" type="button">Save</button>
+        <button class="btn" id="resetStatsBtn" type="button">Reset Stats</button>
+        <button class="btn danger" id="wipeBtn" type="button">Wipe Device Data</button>
+      </div>
+
+      <div class="sub" style="margin-top:10px;">
+        “Logout” only disables Remember Me. “Wipe Device Data” clears local profile, balance and stats on this browser.
+      </div>
+    </section>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const LS = {
+      user: "sim_user",
+      remember: "sim_remember",
+      balance: "sim_balance",
+      display: "sim_display_name",
+      stats: "sim_stats"
+    };
+
+    const $ = (id) => document.getElementById(id);
+
+    function getUser(){ return localStorage.getItem(LS.user) || ""; }
+    function getDisplay(){ return localStorage.getItem(LS.display) || ""; }
+
+    function getBalance(){
+      const raw = localStorage.getItem(LS.balance);
+      const n = Number(raw);
+      return Number.isFinite(n) ? n : 0;
+    }
+    function setBalance(n){
+      localStorage.setItem(LS.balance, String(Math.max(0, Math.floor(n))));
+    }
+    function formatCoins(n){ return `${n.toLocaleString("en-GB")} Coins`; }
+
+    function getStats(){
+      try{ return JSON.parse(localStorage.getItem(LS.stats) || "{}"); }
+      catch{ return {}; }
+    }
+    function setStats(obj){
+      localStorage.setItem(LS.stats, JSON.stringify(obj));
+    }
+
+    const toastEl = $("toast");
+    function toast(msg){
+      toastEl.innerHTML = msg;
+      toastEl.classList.add("show");
+      clearTimeout(toastEl._t);
+      toastEl._t = setTimeout(() => toastEl.classList.remove("show"), 1500);
+    }
+
+    function vipFromXp(xp){
+      if(xp >= 5000) return "Diamond";
+      if(xp >= 2500) return "Platinum";
+      if(xp >= 1200) return "Gold";
+      if(xp >= 600) return "Silver";
+      return "Bronze I";
+    }
+
+    function ensureDefaults(){
+      // Starter coins once (keeps your other pages working)
+      const starterKey = "sim_starter_given";
+      if(getBalance() === 0 && !localStorage.getItem(starterKey)){
+        setBalance(5000);
+        localStorage.setItem(starterKey, "1");
+      }
+
+      const s = getStats();
+      if(typeof s.totalPlayed !== "number") s.totalPlayed = 0;
+      if(typeof s.vipXp !== "number") s.vipXp = 120;
+      setStats(s);
+
+      if(!getDisplay()){
+        const u = getUser();
+        if(u) localStorage.setItem(LS.display, u);
+      }
+    }
+
+    function render(){
+      const u = getUser();
+      const d = getDisplay();
+      const name = d || u || "Guest";
+
+      $("userLabel").textContent = name;
+      $("balanceText").textContent = formatCoins(getBalance());
+
+      $("usernameStat").textContent = name;
+      $("walletStat").textContent = formatCoins(getBalance());
+
+      const s = getStats();
+      $("playedStat").textContent = (s.totalPlayed || 0).toLocaleString("en-GB");
+      $("vipStat").textContent = vipFromXp(s.vipXp || 0);
+
+      $("displayName").value = (name === "Guest") ? "" : name;
+    }
+
+    $("saveNameBtn").addEventListener("click", () => {
+      const raw = $("displayName").value.trim().replace(/\s+/g, " ").slice(0, 20);
+      if(raw.length < 2){
+        toast("Name too short");
+        return;
+      }
+      localStorage.setItem(LS.display, raw);
+      toast(`Saved • <b>${raw}</b>`);
+      render();
+    });
+
+    $("resetStatsBtn").addEventListener("click", () => {
+      setStats({ totalPlayed: 0, vipXp: 120 });
+      toast("Stats reset");
+      render();
+    });
+
+    $("logoutBtn").addEventListener("click", () => {
+      localStorage.removeItem(LS.remember);
+      toast("Logged out");
+      setTimeout(() => window.location.href = "index.html", 450);
+    });
+
+    $("wipeBtn").addEventListener("click", () => {
+      const ok = confirm("Wipe all local data on this device? This clears profile, balance and stats.");
+      if(!ok) return;
+      Object.values(LS).forEach(k => localStorage.removeItem(k));
+      localStorage.removeItem("sim_starter_given");
+      toast("Device data wiped");
+      setTimeout(() => window.location.href = "login.html", 600);
+    });
+
+    // Init
+    ensureDefaults();
+    render();
+  </script>
+</body>
+</html>

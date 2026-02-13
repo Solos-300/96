@@ -1,0 +1,784 @@
+<!-- index.html — Lobby / Home (Play-for-fun casino simulator)
+     NOTE: The small, subtle line at the very top is the required disclosure that this is NOT real gambling.
+-->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Lobby</title>
+
+  <style>
+    :root{
+      --bg0:#050608;
+      --bg1:#0b0c10;
+      --bg2:#12131a;
+
+      --panel0: rgba(18,19,26,0.72);
+      --panel1: rgba(10,10,14,0.72);
+
+      --text:#e9ebf2;
+      --muted:#a7adbd;
+
+      --gold:#d4af37;
+      --gold2:#f5d76e;
+
+      --stroke: rgba(255,255,255,0.08);
+      --stroke2: rgba(212,175,55,0.25);
+
+      --shadow: 0 24px 90px rgba(0,0,0,0.60);
+      --shadow2: 0 16px 60px rgba(0,0,0,0.55);
+
+      --r: 18px;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color:var(--text);
+      background:
+        radial-gradient(1200px 600px at 15% 0%, rgba(212,175,55,0.08), transparent 60%),
+        radial-gradient(900px 500px at 85% 10%, rgba(245,215,110,0.06), transparent 55%),
+        linear-gradient(135deg, var(--bg0), var(--bg1) 45%, var(--bg2));
+      overflow-x:hidden;
+    }
+
+    /* Top disclosure bar (subtle, premium) */
+    .top-note{
+      position:fixed;
+      top:0; left:0;
+      width:100%;
+      z-index:9999;
+      background: linear-gradient(90deg, rgba(5,6,8,0.92), rgba(18,19,26,0.92));
+      border-bottom: 1px solid rgba(212,175,55,0.22);
+      color: rgba(245,215,110,0.95);
+      font-size:12px;
+      letter-spacing:0.6px;
+      padding:6px 12px;
+      text-align:center;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .wrap{
+      max-width:1200px;
+      margin:0 auto;
+      padding: 62px 18px 30px; /* top padding accounts for fixed note */
+    }
+
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      padding: 14px 16px;
+      border:1px solid var(--stroke);
+      background: linear-gradient(180deg, var(--panel0), var(--panel1));
+      border-radius: calc(var(--r) + 2px);
+      box-shadow: var(--shadow2);
+      position:sticky;
+      top:34px; /* below top note */
+      z-index:50;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      min-width: 220px;
+    }
+    .brand img{
+      width:42px;
+      height:42px;
+      object-fit:contain;
+      filter: drop-shadow(0 10px 18px rgba(0,0,0,0.55));
+    }
+    .brand .title{
+      display:flex;
+      flex-direction:column;
+      line-height:1.1;
+    }
+    .brand .title strong{
+      font-size:14px;
+      letter-spacing:0.6px;
+    }
+    .brand .title span{
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    .nav{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      justify-content:center;
+      flex:1;
+    }
+    .pill{
+      text-decoration:none;
+      color:var(--text);
+      font-size:13px;
+      padding:10px 12px;
+      border-radius: 999px;
+      border:1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.03);
+      transition: transform .15s ease, border-color .15s ease, background .15s ease;
+      user-select:none;
+    }
+    .pill:hover{
+      transform: translateY(-1px);
+      border-color: rgba(212,175,55,0.35);
+      background: rgba(212,175,55,0.06);
+    }
+
+    .acct{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      justify-content:flex-end;
+      min-width: 260px;
+    }
+    .badge{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 12px;
+      border-radius: 999px;
+      border:1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.03);
+      white-space:nowrap;
+    }
+    .badge .label{
+      font-size:12px;
+      color:var(--muted);
+      letter-spacing:0.4px;
+    }
+    .badge .value{
+      font-size:13px;
+      font-weight:700;
+      letter-spacing:0.3px;
+    }
+    .coins{
+      color: var(--gold2);
+      text-shadow: 0 0 18px rgba(212,175,55,0.18);
+    }
+
+    .btn{
+      cursor:pointer;
+      border:1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.03);
+      color: var(--text);
+      padding:10px 12px;
+      border-radius: 12px;
+      font-size:13px;
+      transition: transform .15s ease, border-color .15s ease, background .15s ease;
+      user-select:none;
+    }
+    .btn:hover{
+      transform: translateY(-1px);
+      border-color: rgba(212,175,55,0.35);
+      background: rgba(212,175,55,0.06);
+    }
+    .btn.primary{
+      border-color: rgba(212,175,55,0.45);
+      background: linear-gradient(180deg, rgba(212,175,55,0.24), rgba(212,175,55,0.10));
+      box-shadow: 0 10px 30px rgba(212,175,55,0.12);
+    }
+
+    .hero{
+      margin-top:18px;
+      display:grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap:14px;
+    }
+    .card{
+      border:1px solid var(--stroke);
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+      border-radius: var(--r);
+      box-shadow: var(--shadow2);
+      padding:16px;
+      position:relative;
+      overflow:hidden;
+    }
+    .card::before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      background: radial-gradient(500px 200px at 20% 0%, rgba(212,175,55,0.12), transparent 55%);
+      opacity:0.9;
+      pointer-events:none;
+    }
+    .card h1{
+      margin:0 0 8px;
+      font-size:22px;
+      letter-spacing:0.4px;
+      position:relative;
+    }
+    .card p{
+      margin:0;
+      color: var(--muted);
+      line-height:1.6;
+      font-size:13.5px;
+      position:relative;
+    }
+    .card .actions{
+      margin-top:12px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      position:relative;
+    }
+
+    .side{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+    .stat{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      border-radius: 14px;
+      padding:12px 12px;
+      border:1px solid rgba(255,255,255,0.07);
+      background: rgba(0,0,0,0.18);
+    }
+    .stat b{ font-size:13px; }
+    .stat span{ font-size:12px; color:var(--muted); }
+
+    .section{
+      margin-top:16px;
+      display:flex;
+      align-items:end;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .section h2{
+      margin:0;
+      font-size:14px;
+      letter-spacing:0.9px;
+      text-transform:uppercase;
+      color: rgba(245,215,110,0.92);
+    }
+    .section .hint{
+      margin:0;
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    .grid{
+      margin-top:12px;
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap:12px;
+    }
+    .game{
+      position:relative;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      padding:14px;
+      border-radius: 18px;
+      border:1px solid rgba(255,255,255,0.08);
+      background: linear-gradient(180deg, rgba(18,19,26,0.60), rgba(10,10,14,0.50));
+      box-shadow: 0 16px 60px rgba(0,0,0,0.45);
+      overflow:hidden;
+      transition: transform .18s ease, border-color .18s ease, background .18s ease;
+      text-decoration:none;
+      color:var(--text);
+      min-height: 140px;
+    }
+    .game::after{
+      content:"";
+      position:absolute;
+      inset: -40px;
+      background: radial-gradient(240px 120px at 10% 0%, rgba(212,175,55,0.12), transparent 60%);
+      opacity:0.0;
+      transition: opacity .18s ease;
+      pointer-events:none;
+    }
+    .game:hover{
+      transform: translateY(-2px);
+      border-color: rgba(212,175,55,0.35);
+      background: linear-gradient(180deg, rgba(18,19,26,0.66), rgba(10,10,14,0.54));
+    }
+    .game:hover::after{ opacity:1; }
+    .game .top{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+    }
+    .tag{
+      font-size:11px;
+      letter-spacing:0.6px;
+      text-transform:uppercase;
+      color: rgba(245,215,110,0.95);
+      border:1px solid rgba(212,175,55,0.25);
+      background: rgba(212,175,55,0.06);
+      padding:6px 8px;
+      border-radius: 999px;
+      white-space:nowrap;
+    }
+    .game h3{
+      margin:0;
+      font-size:16px;
+      letter-spacing:0.3px;
+    }
+    .game p{
+      margin:0;
+      font-size:12.5px;
+      color:var(--muted);
+      line-height:1.5;
+    }
+
+    footer{
+      margin-top:18px;
+      padding:14px 8px;
+      color: rgba(167,173,189,0.8);
+      font-size:12px;
+      text-align:center;
+    }
+
+    /* Modal */
+    .overlay{
+      position:fixed;
+      inset:0;
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:9998;
+      padding:18px;
+    }
+    .overlay.show{ display:flex; }
+
+    /* Bevelled portrait box w/ gold trim (matches your spec) */
+    .modal{
+      width:min(380px, 92vw);
+      border-radius: 22px;
+      background:
+        linear-gradient(180deg, rgba(14,15,20,0.92), rgba(6,6,8,0.90));
+      border: 1px solid rgba(212,175,55,0.40);
+      box-shadow:
+        0 30px 100px rgba(0,0,0,0.70),
+        inset 0 1px 0 rgba(255,255,255,0.06),
+        inset 0 -1px 0 rgba(0,0,0,0.55);
+      position:relative;
+      overflow:hidden;
+      transform: translateY(6px) scale(0.98);
+      animation: pop .18s ease forwards;
+    }
+    .modal::before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      border-radius: 24px;
+      background: linear-gradient(180deg, rgba(245,215,110,0.10), transparent 45%);
+      pointer-events:none;
+    }
+    @keyframes pop{
+      to{ transform: translateY(0) scale(1); }
+    }
+    .modal .inner{
+      padding:16px;
+      position:relative;
+    }
+    .modal .hdr{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:10px;
+    }
+    .modal .hdr b{
+      letter-spacing:0.6px;
+      font-size:14px;
+    }
+    .x{
+      cursor:pointer;
+      width:34px; height:34px;
+      border-radius: 12px;
+      border:1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.03);
+      color: var(--text);
+      display:grid;
+      place-items:center;
+      user-select:none;
+    }
+    .modal .body{
+      color: var(--muted);
+      font-size:13px;
+      line-height:1.6;
+      margin-bottom:12px;
+    }
+    .modal .row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .chip{
+      cursor:pointer;
+      border:1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.03);
+      padding:10px 12px;
+      border-radius: 999px;
+      font-size:13px;
+      color: var(--text);
+      transition: transform .15s ease, border-color .15s ease, background .15s ease;
+      user-select:none;
+    }
+    .chip:hover{
+      transform: translateY(-1px);
+      border-color: rgba(212,175,55,0.35);
+      background: rgba(212,175,55,0.06);
+    }
+
+    .modal .cta{
+      margin-top:12px;
+      display:flex;
+      gap:10px;
+      justify-content:flex-end;
+      flex-wrap:wrap;
+    }
+
+    @media (max-width: 980px){
+      header{ gap:10px; }
+      .brand{ min-width:auto; }
+      .acct{ min-width:auto; }
+      .hero{ grid-template-columns: 1fr; }
+      .grid{ grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 520px){
+      .grid{ grid-template-columns: 1fr; }
+      .nav{ display:none; }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Small disclosure note (kept subtle so it doesn't ruin the vibe) -->
+  <div class="top-note">SERVER OPEN</div>
+
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <img alt="Logo" src="https://s3-eu-west-1.amazonaws.com/tpd/logos/67bdce6bfa82955c61946b3e/0x0.png" />
+        <div class="title">
+          <strong id="brandName">Lobby</strong>
+          <span>Black • Graphite • Gold</span>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <a class="pill" href="index.html">Lobby</a>
+        <a class="pill" href="leaderboard.html">Leaderboard</a>
+        <a class="pill" href="profile.html">Profile</a>
+        <a class="pill" href="support.html">Support</a>
+      </nav>
+
+      <div class="acct">
+        <div class="badge" title="Your balance">
+          <div>
+            <div class="label" id="userLabel">Guest</div>
+            <div class="value coins" id="balanceText">0 Coins</div>
+          </div>
+        </div>
+
+        <button class="btn" id="fundsBtn">Get Funds</button>
+        <button class="btn primary" id="authBtn">Login</button>
+      </div>
+    </header>
+
+    <div class="hero">
+      <section class="card">
+        <h1>Featured Games</h1>
+        <p>
+          Premium play-for-fun casino simulator with real-style UI, animations, and game flow.
+          Your balance saves on this device.
+        </p>
+
+        <div class="actions">
+          <a class="btn primary" href="games/chicken.html">Play Chicken Cross</a>
+          <a class="btn" href="#games">Browse All Games</a>
+          <button class="btn" id="quickLoginBtn" type="button">Quick Login (dev)</button>
+        </div>
+      </section>
+
+      <aside class="side">
+        <div class="card" style="padding:14px;">
+          <div class="stat">
+            <b>Session</b>
+            <span id="sessionState">Not signed in</span>
+          </div>
+          <div class="stat">
+            <b>VIP</b>
+            <span id="vipState">Bronze I</span>
+          </div>
+          <div class="stat">
+            <b>Daily</b>
+            <span id="dailyState">Ready</span>
+          </div>
+          <div class="actions" style="margin-top:10px;">
+            <button class="btn primary" id="claimDailyBtn" type="button">Claim Daily</button>
+            <button class="btn" id="logoutBtn" type="button" style="display:none;">Logout</button>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <div class="section" id="games">
+      <div>
+        <h2>Game Lobby</h2>
+        <p class="hint">Each tile links to its own game page (we’ll build them next).</p>
+      </div>
+      <p class="hint">Tip: hover tiles for gold glow</p>
+    </div>
+
+    <div class="grid">
+      <a class="game" href="games/chicken.html">
+        <div class="top">
+          <h3>Chicken Cross</h3>
+          <div class="tag">Risk Ladder</div>
+        </div>
+        <p>Step lane-by-lane, multipliers rise, cash out anytime.</p>
+      </a>
+
+      <a class="game" href="games/crash.html">
+        <div class="top">
+          <h3>Crash</h3>
+          <div class="tag">Multiplier</div>
+        </div>
+        <p>Ride the curve — cash out before it crashes.</p>
+      </a>
+
+      <a class="game" href="games/dice.html">
+        <div class="top">
+          <h3>Dice</h3>
+          <div class="tag">Under/Over</div>
+        </div>
+        <p>Pick your target — higher risk means higher payout.</p>
+      </a>
+
+      <a class="game" href="games/mines.html">
+        <div class="top">
+          <h3>Mines</h3>
+          <div class="tag">Grid</div>
+        </div>
+        <p>Reveal safe tiles, avoid mines, cash out your streak.</p>
+      </a>
+
+      <a class="game" href="games/roulette.html">
+        <div class="top">
+          <h3>Roulette</h3>
+          <div class="tag">Wheel</div>
+        </div>
+        <p>Classic wheel spins — reds, blacks, and numbers.</p>
+      </a>
+
+      <a class="game" href="games/plinko.html">
+        <div class="top">
+          <h3>Plinko</h3>
+          <div class="tag">Drop</div>
+        </div>
+        <p>Drop the ball — land in a multiplier bucket.</p>
+      </a>
+
+      <a class="game" href="games/slots.html">
+        <div class="top">
+          <h3>Slots</h3>
+          <div class="tag">Reels</div>
+        </div>
+        <p>Spin reels with clean win flashes and coin tick-up.</p>
+      </a>
+
+      <a class="game" href="games/comingsoon.html">
+        <div class="top">
+          <h3>Live Feed</h3>
+          <div class="tag">Soon</div>
+        </div>
+        <p>Recent wins panel + leaderboard + session stats.</p>
+      </a>
+    </div>
+
+    <footer>
+      © <span id="year"></span> • Built as a play-for-fun simulator UI
+    </footer>
+  </div>
+
+  <!-- Funds modal (portrait + bevel + gold trim) -->
+  <div class="overlay" id="overlay" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-label="Get Funds">
+      <div class="inner">
+        <div class="hdr">
+          <b>Get More Funds</b>
+          <div class="x" id="closeModal" title="Close">✕</div>
+        </div>
+        <div class="body">
+          Add play coins to your account for testing and gameplay.
+        </div>
+
+        <div class="row" style="margin-bottom:10px;">
+          <div class="chip" data-add="1000">+1,000</div>
+          <div class="chip" data-add="10000">+10,000</div>
+          <div class="chip" data-add="100000">+100,000</div>
+        </div>
+
+        <div class="cta">
+          <button class="btn" id="cancelFunds" type="button">Cancel</button>
+          <button class="btn primary" id="confirmFunds" type="button">Add Selected</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ====== Simple local “session” + balance (device-only) ======
+    const LS = {
+      user: "sim_user",
+      balance: "sim_balance",
+      remember: "sim_remember"
+    };
+
+    const el = (id) => document.getElementById(id);
+
+    const state = {
+      selectedAdd: 0
+    };
+
+    function getUser(){
+      return localStorage.getItem(LS.user) || "";
+    }
+    function setUser(name){
+      localStorage.setItem(LS.user, name);
+    }
+    function clearUser(){
+      localStorage.removeItem(LS.user);
+      localStorage.removeItem(LS.remember);
+    }
+    function getBalance(){
+      const raw = localStorage.getItem(LS.balance);
+      const n = Number(raw);
+      return Number.isFinite(n) ? n : 0;
+    }
+    function setBalance(n){
+      localStorage.setItem(LS.balance, String(Math.max(0, Math.floor(n))));
+    }
+    function formatCoins(n){
+      return `${n.toLocaleString("en-GB")} Coins`;
+    }
+
+    function refreshUI(){
+      const user = getUser();
+      const bal = getBalance();
+
+      el("year").textContent = new Date().getFullYear();
+
+      if(user){
+        el("userLabel").textContent = user;
+        el("sessionState").textContent = "Signed in";
+        el("authBtn").textContent = "Profile";
+        el("logoutBtn").style.display = "inline-block";
+      }else{
+        el("userLabel").textContent = "Guest";
+        el("sessionState").textContent = "Not signed in";
+        el("authBtn").textContent = "Login";
+        el("logoutBtn").style.display = "none";
+      }
+
+      el("balanceText").textContent = formatCoins(bal);
+    }
+
+    // ====== Modal logic ======
+    const overlay = el("overlay");
+
+    function openModal(){
+      overlay.classList.add("show");
+      overlay.setAttribute("aria-hidden", "false");
+      state.selectedAdd = 0;
+      // clear chip selected UI
+      document.querySelectorAll(".chip").forEach(c => c.style.borderColor = "rgba(255,255,255,0.08)");
+    }
+
+    function closeModal(){
+      overlay.classList.remove("show");
+      overlay.setAttribute("aria-hidden", "true");
+    }
+
+    document.querySelectorAll(".chip").forEach(chip => {
+      chip.addEventListener("click", () => {
+        state.selectedAdd = Number(chip.dataset.add || "0");
+        document.querySelectorAll(".chip").forEach(c => c.style.borderColor = "rgba(255,255,255,0.08)");
+        chip.style.borderColor = "rgba(212,175,55,0.45)";
+      });
+    });
+
+    el("confirmFunds").addEventListener("click", () => {
+      if(state.selectedAdd > 0){
+        setBalance(getBalance() + state.selectedAdd);
+        refreshUI();
+        closeModal();
+      }
+    });
+
+    el("cancelFunds").addEventListener("click", closeModal);
+    el("closeModal").addEventListener("click", closeModal);
+    overlay.addEventListener("click", (e) => { if(e.target === overlay) closeModal(); });
+    window.addEventListener("keydown", (e) => { if(e.key === "Escape") closeModal(); });
+
+    // ====== Buttons ======
+    el("fundsBtn").addEventListener("click", openModal);
+
+    el("authBtn").addEventListener("click", () => {
+      const user = getUser();
+      if(user){
+        // profile link (page later)
+        window.location.href = "profile.html";
+      }else{
+        // login page (page later)
+        window.location.href = "login.html";
+      }
+    });
+
+    el("quickLoginBtn").addEventListener("click", () => {
+      // Dev helper to quickly create a local session for testing (not a hidden cheat)
+      setUser("Dan");
+      localStorage.setItem(LS.remember, "1");
+      if(getBalance() === 0) setBalance(25000);
+      refreshUI();
+    });
+
+    el("logoutBtn").addEventListener("click", () => {
+      clearUser();
+      refreshUI();
+    });
+
+    el("claimDailyBtn").addEventListener("click", () => {
+      // simple daily claim cooldown example
+      const key = "sim_daily_last";
+      const last = Number(localStorage.getItem(key) || "0");
+      const now = Date.now();
+      const day = 24 * 60 * 60 * 1000;
+
+      if(now - last >= day){
+        setBalance(getBalance() + 2500);
+        localStorage.setItem(key, String(now));
+        el("dailyState").textContent = "Claimed";
+      }else{
+        el("dailyState").textContent = "Already claimed";
+      }
+      refreshUI();
+    });
+
+    // Initial UI
+    refreshUI();
+  </script>
+</body>
+</html>

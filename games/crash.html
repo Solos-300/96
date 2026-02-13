@@ -1,0 +1,1019 @@
+<!-- games/crash.html -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Crash</title>
+
+  <style>
+    :root{
+      --bg0:#050608;
+      --bg1:#0b0c10;
+      --bg2:#12131a;
+
+      --panel0: rgba(18,19,26,0.72);
+      --panel1: rgba(10,10,14,0.72);
+
+      --text:#e9ebf2;
+      --muted:#a7adbd;
+
+      --gold:#d4af37;
+      --gold2:#f5d76e;
+
+      --stroke: rgba(255,255,255,0.08);
+
+      --shadow: 0 24px 90px rgba(0,0,0,0.60);
+      --shadow2: 0 16px 60px rgba(0,0,0,0.55);
+
+      --r: 18px;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color:var(--text);
+      background:
+        radial-gradient(1200px 600px at 15% 0%, rgba(212,175,55,0.08), transparent 60%),
+        radial-gradient(900px 500px at 85% 10%, rgba(245,215,110,0.06), transparent 55%),
+        linear-gradient(135deg, var(--bg0), var(--bg1) 45%, var(--bg2));
+      overflow-x:hidden;
+    }
+
+    /* Top disclosure bar (subtle, premium) */
+    .top-note{
+      position:fixed;
+      top:0; left:0;
+      width:100%;
+      z-index:9999;
+      background: linear-gradient(90deg, rgba(5,6,8,0.92), rgba(18,19,26,0.92));
+      border-bottom: 1px solid rgba(212,175,55,0.22);
+      color: rgba(245,215,110,0.95);
+      font-size:12px;
+      letter-spacing:0.6px;
+      padding:6px 12px;
+      text-align:center;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .wrap{
+      max-width:1200px;
+      margin:0 auto;
+      padding: 62px 18px 30px;
+    }
+
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      padding: 14px 16px;
+      border:1px solid var(--stroke);
+      background: linear-gradient(180deg, var(--panel0), var(--panel1));
+      border-radius: calc(var(--r) + 2px);
+      box-shadow: var(--shadow2);
+      position:sticky;
+      top:34px;
+      z-index:50;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      min-width: 250px;
+    }
+    .brand img{
+      width:42px;
+      height:42px;
+      object-fit:contain;
+      filter: drop-shadow(0 10px 18px rgba(0,0,0,0.55));
+    }
+    .brand .title{
+      display:flex;
+      flex-direction:column;
+      line-height:1.1;
+    }
+    .brand .title strong{
+      font-size:14px;
+      letter-spacing:0.6px;
+    }
+    .brand .title span{
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    .nav{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      justify-content:center;
+      flex:1;
+    }
+    .pill{
+      text-decoration:none;
+      color:var(--text);
+      font-size:13px;
+      padding:10px 12px;
+      border-radius: 999px;
+      border:1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.03);
+      transition: transform .15s ease, border-color .15s ease, background .15s ease;
+      user-select:none;
+    }
+    .pill:hover{
+      transform: translateY(-1px);
+      border-color: rgba(212,175,55,0.35);
+      background: rgba(212,175,55,0.06);
+    }
+
+    .acct{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      justify-content:flex-end;
+      min-width: 300px;
+    }
+    .badge{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 12px;
+      border-radius: 999px;
+      border:1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.03);
+      white-space:nowrap;
+    }
+    .badge .label{
+      font-size:12px;
+      color:var(--muted);
+      letter-spacing:0.4px;
+    }
+    .badge .value{
+      font-size:13px;
+      font-weight:700;
+      letter-spacing:0.3px;
+    }
+    .coins{
+      color: var(--gold2);
+      text-shadow: 0 0 18px rgba(212,175,55,0.18);
+    }
+
+    .btn{
+      cursor:pointer;
+      border:1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.03);
+      color: var(--text);
+      padding:10px 12px;
+      border-radius: 12px;
+      font-size:13px;
+      transition: transform .15s ease, border-color .15s ease, background .15s ease;
+      user-select:none;
+    }
+    .btn:hover{
+      transform: translateY(-1px);
+      border-color: rgba(212,175,55,0.35);
+      background: rgba(212,175,55,0.06);
+    }
+    .btn.primary{
+      border-color: rgba(212,175,55,0.45);
+      background: linear-gradient(180deg, rgba(212,175,55,0.24), rgba(212,175,55,0.10));
+      box-shadow: 0 10px 30px rgba(212,175,55,0.12);
+    }
+    .btn:disabled{
+      opacity:0.45;
+      cursor:not-allowed;
+      transform:none !important;
+    }
+
+    .layout{
+      margin-top:16px;
+      display:grid;
+      grid-template-columns: 0.92fr 1.08fr;
+      gap:14px;
+    }
+
+    .card{
+      border:1px solid var(--stroke);
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+      border-radius: var(--r);
+      box-shadow: var(--shadow2);
+      padding:16px;
+      position:relative;
+      overflow:hidden;
+    }
+    .card::before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      background: radial-gradient(520px 240px at 18% 0%, rgba(212,175,55,0.12), transparent 55%);
+      opacity:0.9;
+      pointer-events:none;
+    }
+    .card > *{ position:relative; }
+
+    h1{
+      margin:0;
+      font-size:18px;
+      letter-spacing:0.6px;
+    }
+    .sub{
+      margin-top:6px;
+      color:var(--muted);
+      font-size:13.5px;
+      line-height:1.6;
+    }
+
+    .field{
+      display:grid;
+      gap:8px;
+      margin-top:12px;
+    }
+    label{
+      font-size:12px;
+      color:var(--muted);
+      letter-spacing:0.6px;
+      text-transform:uppercase;
+    }
+    .input{
+      width:100%;
+      border-radius: 14px;
+      border:1px solid rgba(255,255,255,0.08);
+      background: rgba(0,0,0,0.18);
+      color:var(--text);
+      padding:12px 12px;
+      outline:none;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+
+    .chipsRow{
+      margin-top:10px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .chipBtn{
+      cursor:pointer;
+      border:1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.03);
+      padding:10px 12px;
+      border-radius: 999px;
+      font-size:13px;
+      color: var(--text);
+      transition: transform .15s ease, border-color .15s ease, background .15s ease;
+      user-select:none;
+    }
+    .chipBtn:hover{
+      transform: translateY(-1px);
+      border-color: rgba(212,175,55,0.35);
+      background: rgba(212,175,55,0.06);
+    }
+
+    .statusBar{
+      margin-top:12px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      padding:12px 12px;
+      border-radius: 16px;
+      border:1px solid rgba(255,255,255,0.07);
+      background: rgba(0,0,0,0.18);
+    }
+    .statusBar .k{
+      font-size:12px;
+      color:var(--muted);
+      letter-spacing:0.6px;
+      text-transform:uppercase;
+    }
+    .statusBar .v{
+      font-size:14px;
+      font-weight:800;
+      letter-spacing:0.3px;
+    }
+    .statusBar .gold{
+      color:var(--gold2);
+      text-shadow: 0 0 18px rgba(212,175,55,0.18);
+    }
+
+    .row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      margin-top:12px;
+    }
+
+    /* Chart */
+    .chartCard{
+      padding:0;
+      overflow:hidden;
+    }
+    .chartHdr{
+      padding:16px;
+      border-bottom:1px solid rgba(255,255,255,0.08);
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+    }
+    canvas{
+      width:100%;
+      height:360px;
+      display:block;
+      background: linear-gradient(180deg, rgba(0,0,0,0.18), rgba(0,0,0,0.08));
+    }
+    .centerLabel{
+      position:absolute;
+      left:50%;
+      top:52%;
+      transform: translate(-50%,-50%);
+      text-align:center;
+      pointer-events:none;
+      z-index:3;
+    }
+    .centerLabel .big{
+      font-size:46px;
+      font-weight:900;
+      letter-spacing:0.6px;
+      color: var(--gold2);
+      text-shadow: 0 0 24px rgba(212,175,55,0.18);
+    }
+    .centerLabel .small{
+      margin-top:6px;
+      font-size:12px;
+      color: rgba(233,235,242,0.80);
+      letter-spacing:0.6px;
+      text-transform:uppercase;
+    }
+
+    .phaseTag{
+      font-size:11px;
+      letter-spacing:0.6px;
+      text-transform:uppercase;
+      color: rgba(245,215,110,0.95);
+      border:1px solid rgba(212,175,55,0.25);
+      background: rgba(212,175,55,0.06);
+      padding:6px 8px;
+      border-radius: 999px;
+      white-space:nowrap;
+      height: fit-content;
+    }
+
+    /* Toast */
+    .toast{
+      position:fixed;
+      left:50%;
+      bottom:22px;
+      transform: translateX(-50%);
+      padding:10px 12px;
+      border-radius: 999px;
+      border:1px solid rgba(255,255,255,0.08);
+      background: rgba(0,0,0,0.35);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      color: var(--text);
+      font-size:13px;
+      opacity:0;
+      z-index:9999;
+      transition: opacity .18s ease, transform .18s ease;
+      box-shadow: 0 16px 60px rgba(0,0,0,0.55);
+      white-space:nowrap;
+    }
+    .toast.show{
+      opacity:1;
+      transform: translateX(-50%) translateY(-2px);
+    }
+    .toast b{ color: var(--gold2); }
+
+    /* Overlay modal (insufficient funds only) */
+    .overlay{
+      position:fixed;
+      inset:0;
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:9998;
+      padding:18px;
+    }
+    .overlay.show{ display:flex; }
+
+    .modal{
+      width:min(392px, 92vw);
+      border-radius: 22px;
+      background:
+        linear-gradient(180deg, rgba(14,15,20,0.92), rgba(6,6,8,0.90));
+      border: 1px solid rgba(212,175,55,0.40);
+      box-shadow:
+        0 30px 100px rgba(0,0,0,0.70),
+        inset 0 1px 0 rgba(255,255,255,0.06),
+        inset 0 -1px 0 rgba(0,0,0,0.55);
+      position:relative;
+      overflow:hidden;
+      transform: translateY(6px) scale(0.98);
+      animation: pop .18s ease forwards;
+    }
+    .modal::before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      border-radius: 24px;
+      background: linear-gradient(180deg, rgba(245,215,110,0.10), transparent 45%);
+      pointer-events:none;
+    }
+    @keyframes pop{ to{ transform: translateY(0) scale(1); } }
+    .modal .inner{ padding:16px; position:relative; }
+    .modal .hdr{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:10px;
+    }
+    .modal .hdr b{ letter-spacing:0.6px; font-size:14px; }
+    .x{
+      cursor:pointer;
+      width:34px; height:34px;
+      border-radius: 12px;
+      border:1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.03);
+      color: var(--text);
+      display:grid;
+      place-items:center;
+      user-select:none;
+    }
+    .modal .body{
+      color: var(--muted);
+      font-size:13px;
+      line-height:1.6;
+      margin-bottom:12px;
+    }
+    .modal .cta{
+      margin-top:12px;
+      display:flex;
+      gap:10px;
+      justify-content:flex-end;
+      flex-wrap:wrap;
+    }
+
+    /* Shake on crash */
+    .shake{ animation: shake .35s ease; }
+    @keyframes shake{
+      0%,100%{ transform: translateX(0); }
+      20%{ transform: translateX(-6px); }
+      40%{ transform: translateX(6px); }
+      60%{ transform: translateX(-4px); }
+      80%{ transform: translateX(4px); }
+    }
+
+    @media (max-width: 980px){
+      .layout{ grid-template-columns: 1fr; }
+      .nav{ display:none; }
+      .acct{ min-width:auto; }
+      canvas{ height: 320px; }
+      .centerLabel .big{ font-size:40px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="top-note">Play-for-fun simulator • No real money • No withdrawals</div>
+
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <img alt="Logo" src="https://s3-eu-west-1.amazonaws.com/tpd/logos/67bdce6bfa82955c61946b3e/0x0.png" />
+        <div class="title">
+          <strong>Crash</strong>
+          <span>Cash out before it crashes</span>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <a class="pill" href="../index.html">Lobby</a>
+        <a class="pill" href="chicken.html">Chicken Cross</a>
+        <a class="pill" href="../profile.html">Profile</a>
+      </nav>
+
+      <div class="acct">
+        <div class="badge" title="Your balance">
+          <div>
+            <div class="label" id="userLabel">Guest</div>
+            <div class="value coins" id="balanceText">0 Coins</div>
+          </div>
+        </div>
+        <button class="btn primary" id="authBtn">Login</button>
+      </div>
+    </header>
+
+    <div class="layout">
+      <!-- Controls -->
+      <section class="card">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;">
+          <div>
+            <h1>Bet</h1>
+            <div class="sub">Start a round, then cash out before the crash point hits.</div>
+          </div>
+          <a class="btn" href="../index.html" style="text-decoration:none;display:inline-flex;align-items:center;">Back</a>
+        </div>
+
+        <div class="field">
+          <label for="bet">Bet amount</label>
+          <input class="input" id="bet" type="number" min="1" step="1" value="500" />
+          <div class="chipsRow" aria-label="Quick bet">
+            <div class="chipBtn" data-bet="100">100</div>
+            <div class="chipBtn" data-bet="500">500</div>
+            <div class="chipBtn" data-bet="1000">1,000</div>
+            <div class="chipBtn" data-bet="5000">5,000</div>
+            <div class="chipBtn" data-bet="10000">10,000</div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="autoCash">Auto cashout (optional)</label>
+          <input class="input" id="autoCash" type="number" min="1.01" step="0.01" placeholder="e.g. 2.00" />
+          <div class="sub" style="margin-top:6px;">
+            If set, it will automatically cash out when multiplier reaches this value.
+          </div>
+        </div>
+
+        <div class="statusBar">
+          <div>
+            <div class="k">Phase</div>
+            <div class="v" id="phaseText">Idle</div>
+          </div>
+          <div>
+            <div class="k">Current</div>
+            <div class="v gold" id="multText">1.00×</div>
+          </div>
+          <div>
+            <div class="k">Potential</div>
+            <div class="v" id="potText">0 Coins</div>
+          </div>
+        </div>
+
+        <div class="row">
+          <button class="btn primary" id="startBtn">Start</button>
+          <button class="btn" id="cashBtn" disabled>Cash Out</button>
+          <button class="btn" id="resetBtn">Reset</button>
+        </div>
+
+        <div class="sub" style="margin-top:10px;">
+          Controls: <b>Enter</b>/<b>Space</b> to Start, <b>C</b> to Cash Out.
+        </div>
+      </section>
+
+      <!-- Chart -->
+      <section class="card chartCard" style="position:relative;">
+        <div class="chartHdr">
+          <div>
+            <h1>Round</h1>
+            <div class="sub" id="roundSub">Waiting for next round.</div>
+          </div>
+          <div class="phaseTag" id="crashTag">IDLE</div>
+        </div>
+
+        <div style="position:relative;">
+          <canvas id="canvas" width="1100" height="720"></canvas>
+
+          <div class="centerLabel" aria-hidden="true">
+            <div class="big" id="centerMult">1.00×</div>
+            <div class="small" id="centerHint">PLACE YOUR BET</div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- Insufficient funds modal -->
+  <div class="overlay" id="insOverlay" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-label="Insufficient funds">
+      <div class="inner">
+        <div class="hdr">
+          <b>Insufficient Funds</b>
+          <div class="x" id="insClose" title="Close">✕</div>
+        </div>
+        <div class="body">
+          You don’t have enough coins to place this bet.
+        </div>
+        <div class="cta">
+          <button class="btn" id="insCancel" type="button">Close</button>
+          <a class="btn primary" href="../index.html" style="text-decoration:none;">Go to Lobby</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ===== Local wallet/session =====
+    const LS = { user:"sim_user", balance:"sim_balance", display:"sim_display_name" };
+    const $ = (id) => document.getElementById(id);
+
+    function getBalance(){
+      const raw = localStorage.getItem(LS.balance);
+      const n = Number(raw);
+      return Number.isFinite(n) ? n : 0;
+    }
+    function setBalance(n){
+      localStorage.setItem(LS.balance, String(Math.max(0, Math.floor(n))));
+    }
+    function formatCoins(n){ return `${n.toLocaleString("en-GB")} Coins`; }
+
+    function refreshHeader(){
+      const user = localStorage.getItem(LS.display) || localStorage.getItem(LS.user) || "Guest";
+      $("userLabel").textContent = user;
+      $("balanceText").textContent = formatCoins(getBalance());
+      $("authBtn").textContent = (localStorage.getItem(LS.user)) ? "Profile" : "Login";
+    }
+
+    $("authBtn").addEventListener("click", () => {
+      window.location.href = localStorage.getItem(LS.user) ? "../profile.html" : "../login.html";
+    });
+
+    // ===== Toast =====
+    const toastEl = $("toast");
+    function toast(html){
+      toastEl.innerHTML = html;
+      toastEl.classList.add("show");
+      clearTimeout(toastEl._t);
+      toastEl._t = setTimeout(() => toastEl.classList.remove("show"), 1400);
+    }
+
+    // ===== Insufficient funds modal =====
+    const insOverlay = $("insOverlay");
+    function openIns(){ insOverlay.classList.add("show"); insOverlay.setAttribute("aria-hidden","false"); }
+    function closeIns(){ insOverlay.classList.remove("show"); insOverlay.setAttribute("aria-hidden","true"); }
+    $("insClose").addEventListener("click", closeIns);
+    $("insCancel").addEventListener("click", closeIns);
+    insOverlay.addEventListener("click", (e)=>{ if(e.target===insOverlay) closeIns(); });
+
+    // ===== Game state =====
+    const betInput = $("bet");
+    const autoCashInput = $("autoCash");
+    const phaseText = $("phaseText");
+    const multText = $("multText");
+    const potText = $("potText");
+
+    const startBtn = $("startBtn");
+    const cashBtn = $("cashBtn");
+    const resetBtn = $("resetBtn");
+
+    const crashTag = $("crashTag");
+    const roundSub = $("roundSub");
+
+    const centerMult = $("centerMult");
+    const centerHint = $("centerHint");
+
+    const canvas = $("canvas");
+    const ctx = canvas.getContext("2d");
+
+    // Visual scaling for crispness
+    function fitCanvas(){
+      const dpr = Math.max(1, window.devicePixelRatio || 1);
+      const parent = canvas.parentElement.getBoundingClientRect();
+      canvas.style.width = parent.width + "px";
+      canvas.style.height = Math.min(360, parent.width * 0.45) + "px";
+      const w = Math.floor(parent.width * dpr);
+      const h = Math.floor(parseFloat(canvas.style.height) * dpr);
+      canvas.width = w; canvas.height = h;
+      ctx.setTransform(1,0,0,1,0,0);
+      ctx.scale(dpr, dpr);
+    }
+
+    const game = {
+      phase: "idle", // idle | running | crashed | cashed
+      bet: 0,
+      mult: 1.00,
+      crashAt: 0,
+      startTime: 0,
+      points: [],
+      raf: 0
+    };
+
+    function clampBet(){
+      let n = Number(betInput.value);
+      if(!Number.isFinite(n) || n <= 0) n = 1;
+      betInput.value = String(Math.floor(n));
+      return Math.floor(n);
+    }
+
+    document.querySelectorAll(".chipBtn").forEach(b => {
+      b.addEventListener("click", () => {
+        betInput.value = String(Number(b.dataset.bet || "1"));
+        updatePotential();
+      });
+    });
+    betInput.addEventListener("input", () => { clampBet(); updatePotential(); });
+    autoCashInput.addEventListener("input", () => { /* purely optional */ });
+
+    // Crash distribution (feels realistic): exponential-ish, with occasional high runs
+    function sampleCrashPoint(){
+      // Use inverse transform on uniform:
+      // Higher "edge" -> more low crash points.
+      const u = Math.random();
+      const houseEdge = 0.06; // tuned for feel
+      // base formula producing >1.0, heavier towards low multipliers
+      let x = (1 - houseEdge) / (1 - u);
+      // soften extremes
+      x = Math.max(1.01, Math.min(x, 1000));
+      // Round to 2 decimals for display stability
+      return Math.floor(x * 100) / 100;
+    }
+
+    function setPhase(p){
+      game.phase = p;
+      phaseText.textContent = p[0].toUpperCase() + p.slice(1);
+      crashTag.textContent = p.toUpperCase();
+
+      if(p === "idle"){
+        crashTag.style.borderColor = "rgba(212,175,55,0.25)";
+        crashTag.style.background = "rgba(212,175,55,0.06)";
+      }
+      if(p === "running"){
+        crashTag.style.borderColor = "rgba(245,215,110,0.35)";
+        crashTag.style.background = "rgba(212,175,55,0.08)";
+      }
+      if(p === "crashed"){
+        crashTag.style.borderColor = "rgba(255,80,80,0.25)";
+        crashTag.style.background = "rgba(255,80,80,0.06)";
+      }
+      if(p === "cashed"){
+        crashTag.style.borderColor = "rgba(212,175,55,0.40)";
+        crashTag.style.background = "rgba(212,175,55,0.12)";
+      }
+    }
+
+    function updatePotential(){
+      const bet = clampBet();
+      const pot = Math.floor(bet * game.mult);
+      multText.textContent = `${game.mult.toFixed(2)}×`;
+      centerMult.textContent = `${game.mult.toFixed(2)}×`;
+      potText.textContent = formatCoins(pot);
+    }
+
+    function setButtons(){
+      startBtn.disabled = (game.phase === "running");
+      cashBtn.disabled = !(game.phase === "running");
+    }
+
+    // Draw chart
+    function draw(){
+      const rect = canvas.getBoundingClientRect();
+      const W = rect.width, H = rect.height;
+
+      // background clear
+      ctx.clearRect(0,0,W,H);
+
+      // grid
+      ctx.globalAlpha = 1;
+      ctx.lineWidth = 1;
+
+      // subtle grid lines
+      ctx.strokeStyle = "rgba(255,255,255,0.06)";
+      const gx = 6, gy = 5;
+      for(let i=1;i<gx;i++){
+        const x = (W/gx)*i;
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+      }
+      for(let i=1;i<gy;i++){
+        const y = (H/gy)*i;
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+      }
+
+      // axis baseline
+      ctx.strokeStyle = "rgba(255,255,255,0.10)";
+      ctx.beginPath(); ctx.moveTo(18, H-18); ctx.lineTo(W-18, H-18); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(18, H-18); ctx.lineTo(18, 18); ctx.stroke();
+
+      // path
+      if(game.points.length >= 2){
+        // glow
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = (game.phase === "crashed") ? "rgba(255,80,80,0.55)" : "rgba(212,175,55,0.55)";
+        ctx.beginPath();
+        for(let i=0;i<game.points.length;i++){
+          const p = game.points[i];
+          if(i===0) ctx.moveTo(p.x, p.y);
+          else ctx.lineTo(p.x, p.y);
+        }
+        ctx.stroke();
+
+        // core line
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = (game.phase === "crashed") ? "rgba(255,120,120,0.95)" : "rgba(245,215,110,0.95)";
+        ctx.beginPath();
+        for(let i=0;i<game.points.length;i++){
+          const p = game.points[i];
+          if(i===0) ctx.moveTo(p.x, p.y);
+          else ctx.lineTo(p.x, p.y);
+        }
+        ctx.stroke();
+      }
+
+      // end marker
+      if(game.points.length){
+        const last = game.points[game.points.length-1];
+        ctx.fillStyle = (game.phase === "crashed") ? "rgba(255,120,120,1)" : "rgba(245,215,110,1)";
+        ctx.beginPath(); ctx.arc(last.x, last.y, 4, 0, Math.PI*2); ctx.fill();
+      }
+    }
+
+    function mapPoint(t, mult){
+      const rect = canvas.getBoundingClientRect();
+      const W = rect.width, H = rect.height;
+      const pad = 18;
+
+      // x grows with time; y maps multiplier (log) for nicer shape
+      const x = pad + (W - pad*2) * t;
+
+      // log scale y
+      const maxM = Math.max(2.0, Math.min(10, game.mult + 1)); // dynamic cap for view
+      const yNorm = Math.log(mult) / Math.log(maxM);
+      const y = (H - pad) - (H - pad*2) * Math.min(1, yNorm);
+
+      return { x, y };
+    }
+
+    function runLoop(){
+      const now = performance.now();
+      const elapsed = (now - game.startTime) / 1000; // sec
+
+      // multiplier curve: exponential-ish but controlled
+      const speed = 0.55; // tune feel
+      const m = Math.exp(speed * elapsed);
+      game.mult = Math.max(1.0, Math.min(m, 9999));
+
+      // push points (normalize time to 0..1 over a window)
+      const t = Math.min(1, elapsed / 6.5); // 6.5s visible window
+      const p = mapPoint(t, game.mult);
+      game.points.push(p);
+
+      // Update UI
+      updatePotential();
+      $("phaseText").textContent = "Running";
+      roundSub.textContent = "Round in progress. Cash out before it crashes.";
+      centerHint.textContent = "CASH OUT ANYTIME";
+
+      // Auto cashout
+      const ac = Number(autoCashInput.value);
+      if(Number.isFinite(ac) && ac >= 1.01 && game.phase === "running"){
+        if(game.mult >= ac){
+          cashOut(true);
+          return;
+        }
+      }
+
+      // Crash check
+      if(game.mult >= game.crashAt){
+        crash();
+        return;
+      }
+
+      draw();
+      game.raf = requestAnimationFrame(runLoop);
+    }
+
+    function startRound(){
+      if(game.phase === "running") return;
+
+      const bet = clampBet();
+      const bal = getBalance();
+      if(bet > bal){
+        openIns();
+        return;
+      }
+
+      // Deduct bet immediately
+      setBalance(bal - bet);
+      refreshHeader();
+
+      game.bet = bet;
+      game.mult = 1.00;
+      game.crashAt = sampleCrashPoint();
+      game.points = [];
+      game.startTime = performance.now();
+
+      setPhase("running");
+      setButtons();
+
+      toast(`Round started • Bet <b>${bet.toLocaleString("en-GB")}</b>`);
+      roundSub.textContent = "Round starting...";
+      centerHint.textContent = "RUNNING";
+      centerMult.textContent = "1.00×";
+
+      // Prime first point
+      const p0 = mapPoint(0, 1.0);
+      game.points.push(p0);
+      draw();
+      game.raf = requestAnimationFrame(runLoop);
+    }
+
+    function crash(){
+      cancelAnimationFrame(game.raf);
+      setPhase("crashed");
+      setButtons();
+
+      // Visual shake
+      const card = canvas.closest(".card");
+      card.classList.remove("shake");
+      void card.offsetWidth;
+      card.classList.add("shake");
+
+      toast(`Crashed at <b>${game.crashAt.toFixed(2)}×</b>`);
+      roundSub.textContent = `Crashed at ${game.crashAt.toFixed(2)}×.`;
+      centerHint.textContent = "CRASHED";
+      centerMult.textContent = `${game.crashAt.toFixed(2)}×`;
+
+      // freeze multiplier at crash
+      game.mult = game.crashAt;
+      updatePotential();
+      draw();
+    }
+
+    function cashOut(auto=false){
+      if(game.phase !== "running") return;
+
+      cancelAnimationFrame(game.raf);
+      setPhase("cashed");
+      setButtons();
+
+      const win = Math.floor(game.bet * game.mult);
+      setBalance(getBalance() + win);
+      refreshHeader();
+
+      toast(`${auto ? "Auto " : ""}Cashed out • Won <b>${win.toLocaleString("en-GB")}</b>`);
+      roundSub.textContent = `Cashed out at ${game.mult.toFixed(2)}×.`;
+      centerHint.textContent = "CASHED OUT";
+      centerMult.textContent = `${game.mult.toFixed(2)}×`;
+
+      draw();
+    }
+
+    function reset(){
+      cancelAnimationFrame(game.raf);
+      game.bet = 0;
+      game.mult = 1.00;
+      game.points = [];
+      setPhase("idle");
+      roundSub.textContent = "Waiting for next round.";
+      centerHint.textContent = "PLACE YOUR BET";
+      centerMult.textContent = "1.00×";
+      updatePotential();
+      setButtons();
+      draw();
+      toast("Reset");
+    }
+
+    startBtn.addEventListener("click", startRound);
+    cashBtn.addEventListener("click", () => cashOut(false));
+    resetBtn.addEventListener("click", reset);
+
+    // Keyboard support
+    window.addEventListener("keydown", (e) => {
+      if(insOverlay.classList.contains("show")) return;
+
+      if(e.key === " " || e.key === "Enter"){
+        e.preventDefault();
+        if(game.phase !== "running") startRound();
+      }
+      if(e.key.toLowerCase() === "c"){
+        cashOut(false);
+      }
+      if(e.key === "Escape"){
+        reset();
+      }
+    });
+
+    // Init
+    refreshHeader();
+
+    // Starter coins once (so testing works if empty)
+    const starterKey = "sim_starter_given";
+    if(getBalance() === 0 && !localStorage.getItem(starterKey)){
+      setBalance(5000);
+      localStorage.setItem(starterKey, "1");
+      refreshHeader();
+    }
+
+    fitCanvas();
+    window.addEventListener("resize", () => { fitCanvas(); draw(); });
+
+    setPhase("idle");
+    updatePotential();
+    setButtons();
+    draw();
+  </script>
+</body>
+</html>

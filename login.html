@@ -1,0 +1,571 @@
+<!-- login.html -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Login</title>
+
+  <style>
+    :root{
+      --bg0:#050608;
+      --bg1:#0b0c10;
+      --bg2:#12131a;
+
+      --panel0: rgba(18,19,26,0.72);
+      --panel1: rgba(10,10,14,0.72);
+
+      --text:#e9ebf2;
+      --muted:#a7adbd;
+
+      --gold:#d4af37;
+      --gold2:#f5d76e;
+
+      --stroke: rgba(255,255,255,0.08);
+      --stroke2: rgba(212,175,55,0.25);
+
+      --shadow: 0 24px 90px rgba(0,0,0,0.60);
+      --shadow2: 0 16px 60px rgba(0,0,0,0.55);
+
+      --r: 18px;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color:var(--text);
+      background:
+        radial-gradient(1200px 600px at 15% 0%, rgba(212,175,55,0.08), transparent 60%),
+        radial-gradient(900px 500px at 85% 10%, rgba(245,215,110,0.06), transparent 55%),
+        linear-gradient(135deg, var(--bg0), var(--bg1) 45%, var(--bg2));
+      overflow-x:hidden;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 62px 18px 30px; /* top padding accounts for fixed note */
+    }
+
+    /* Top disclosure bar (subtle, premium) */
+    .top-note{
+      position:fixed;
+      top:0; left:0;
+      width:100%;
+      z-index:9999;
+      background: linear-gradient(90deg, rgba(5,6,8,0.92), rgba(18,19,26,0.92));
+      border-bottom: 1px solid rgba(212,175,55,0.22);
+      color: rgba(245,215,110,0.95);
+      font-size:12px;
+      letter-spacing:0.6px;
+      padding:6px 12px;
+      text-align:center;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .shell{
+      width:min(1100px, 100%);
+      display:grid;
+      grid-template-columns: 1.08fr 0.92fr;
+      gap:16px;
+    }
+
+    header{
+      grid-column: 1 / -1;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      padding: 14px 16px;
+      border:1px solid var(--stroke);
+      background: linear-gradient(180deg, var(--panel0), var(--panel1));
+      border-radius: calc(var(--r) + 2px);
+      box-shadow: var(--shadow2);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      min-width: 250px;
+    }
+    .brand img{
+      width:42px;
+      height:42px;
+      object-fit:contain;
+      filter: drop-shadow(0 10px 18px rgba(0,0,0,0.55));
+    }
+    .brand .title{
+      display:flex;
+      flex-direction:column;
+      line-height:1.1;
+    }
+    .brand .title strong{
+      font-size:14px;
+      letter-spacing:0.6px;
+    }
+    .brand .title span{
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    .pill{
+      text-decoration:none;
+      color:var(--text);
+      font-size:13px;
+      padding:10px 12px;
+      border-radius: 999px;
+      border:1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.03);
+      transition: transform .15s ease, border-color .15s ease, background .15s ease;
+      user-select:none;
+    }
+    .pill:hover{
+      transform: translateY(-1px);
+      border-color: rgba(212,175,55,0.35);
+      background: rgba(212,175,55,0.06);
+    }
+
+    .card{
+      border:1px solid var(--stroke);
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+      border-radius: var(--r);
+      box-shadow: var(--shadow2);
+      padding:16px;
+      position:relative;
+      overflow:hidden;
+      min-height: 520px;
+    }
+    .card::before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      background: radial-gradient(520px 240px at 18% 0%, rgba(212,175,55,0.12), transparent 55%);
+      opacity:0.9;
+      pointer-events:none;
+    }
+    .card > *{ position:relative; }
+
+    h1{
+      margin:0;
+      font-size:22px;
+      letter-spacing:0.6px;
+    }
+    .sub{
+      margin-top:8px;
+      color:var(--muted);
+      font-size:13.5px;
+      line-height:1.6;
+      max-width: 52ch;
+    }
+
+    .kpis{
+      margin-top:14px;
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:10px;
+    }
+    .kpi{
+      border-radius: 16px;
+      border:1px solid rgba(255,255,255,0.07);
+      background: rgba(0,0,0,0.18);
+      padding:12px;
+    }
+    .kpi b{
+      display:block;
+      font-size:13px;
+      letter-spacing:0.3px;
+    }
+    .kpi span{
+      display:block;
+      margin-top:4px;
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.4;
+    }
+
+    .formTitle{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .tabs{
+      display:flex;
+      gap:8px;
+      align-items:center;
+    }
+    .tab{
+      cursor:pointer;
+      border:1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.03);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius: 999px;
+      font-size:13px;
+      transition: transform .15s ease, border-color .15s ease, background .15s ease;
+      user-select:none;
+    }
+    .tab:hover{
+      transform: translateY(-1px);
+      border-color: rgba(212,175,55,0.35);
+      background: rgba(212,175,55,0.06);
+    }
+    .tab.active{
+      border-color: rgba(212,175,55,0.45);
+      background: linear-gradient(180deg, rgba(212,175,55,0.22), rgba(212,175,55,0.08));
+      box-shadow: 0 10px 30px rgba(212,175,55,0.10);
+    }
+
+    form{
+      margin-top:14px;
+      display:grid;
+      gap:12px;
+    }
+    label{
+      font-size:12px;
+      color:var(--muted);
+      letter-spacing:0.6px;
+      text-transform:uppercase;
+    }
+    .input{
+      width:100%;
+      border-radius: 14px;
+      border:1px solid rgba(255,255,255,0.08);
+      background: rgba(0,0,0,0.18);
+      color:var(--text);
+      padding:12px 12px;
+      outline:none;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+    .row{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:space-between;
+      flex-wrap:wrap;
+    }
+    .check{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      color:var(--muted);
+      font-size:13px;
+      user-select:none;
+    }
+    .check input{ transform: scale(1.05); }
+
+    .btn{
+      cursor:pointer;
+      border:1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.03);
+      color: var(--text);
+      padding:12px 12px;
+      border-radius: 14px;
+      font-size:13.5px;
+      transition: transform .15s ease, border-color .15s ease, background .15s ease;
+      user-select:none;
+    }
+    .btn:hover{
+      transform: translateY(-1px);
+      border-color: rgba(212,175,55,0.35);
+      background: rgba(212,175,55,0.06);
+    }
+    .btn.primary{
+      border-color: rgba(212,175,55,0.45);
+      background: linear-gradient(180deg, rgba(212,175,55,0.24), rgba(212,175,55,0.10));
+      box-shadow: 0 10px 30px rgba(212,175,55,0.12);
+    }
+
+    .note{
+      margin-top:10px;
+      color: rgba(167,173,189,0.85);
+      font-size:12px;
+      line-height:1.5;
+    }
+
+    /* Toast */
+    .toast{
+      position:fixed;
+      left:50%;
+      bottom:22px;
+      transform: translateX(-50%);
+      padding:10px 12px;
+      border-radius: 999px;
+      border:1px solid rgba(255,255,255,0.08);
+      background: rgba(0,0,0,0.35);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      color: var(--text);
+      font-size:13px;
+      opacity:0;
+      z-index:9998;
+      transition: opacity .18s ease, transform .18s ease;
+      box-shadow: 0 16px 60px rgba(0,0,0,0.55);
+      white-space:nowrap;
+    }
+    .toast.show{
+      opacity:1;
+      transform: translateX(-50%) translateY(-2px);
+    }
+    .toast b{ color: var(--gold2); }
+
+    @media (max-width: 980px){
+      body{ padding: 62px 14px 24px; }
+      .shell{ grid-template-columns: 1fr; }
+      .card{ min-height: unset; }
+      .kpis{ grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="top-note">Play-for-fun simulator • No real money • No withdrawals</div>
+
+  <div class="shell">
+    <header>
+      <div class="brand">
+        <img alt="Logo" src="https://s3-eu-west-1.amazonaws.com/tpd/logos/67bdce6bfa82955c61946b3e/0x0.png" />
+        <div class="title">
+          <strong>Account</strong>
+          <span>Login • Remember me</span>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;align-items:center;">
+        <a class="pill" href="index.html">Back to Lobby</a>
+      </div>
+    </header>
+
+    <!-- Left marketing/info -->
+    <section class="card">
+      <h1>Welcome back</h1>
+      <div class="sub">
+        Sign in to save your profile name on this device and keep your balance consistent across all games.
+        This build is designed as a premium play-for-fun simulator UI.
+      </div>
+
+      <div class="kpis">
+        <div class="kpi">
+          <b>Device Save</b>
+          <span>Login is saved locally using a session token on this browser.</span>
+        </div>
+        <div class="kpi">
+          <b>Unified Wallet</b>
+          <span>Your coin balance is shared across every game page.</span>
+        </div>
+        <div class="kpi">
+          <b>Fast Access</b>
+          <span>Use “Remember me” to skip login next time.</span>
+        </div>
+      </div>
+
+      <div class="note" style="margin-top:16px;">
+        Tip: if you’re testing locally, you can create a quick account with any username.
+      </div>
+    </section>
+
+    <!-- Right auth card -->
+    <section class="card">
+      <div class="formTitle">
+        <div>
+          <h1 id="formHeading">Login</h1>
+          <div class="sub" id="formSub">Enter your details to continue.</div>
+        </div>
+        <div class="tabs" aria-label="Auth tabs">
+          <div class="tab active" id="tabLogin">Login</div>
+          <div class="tab" id="tabRegister">Register</div>
+        </div>
+      </div>
+
+      <form id="authForm" autocomplete="on">
+        <div>
+          <label for="username">Username</label>
+          <input class="input" id="username" name="username" type="text" placeholder="e.g. Dan" maxlength="20" required />
+        </div>
+
+        <div>
+          <label for="password">Password</label>
+          <input class="input" id="password" name="password" type="password" placeholder="••••••••" minlength="4" maxlength="64" required />
+        </div>
+
+        <div class="row">
+          <label class="check">
+            <input type="checkbox" id="remember" />
+            Remember me
+          </label>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+            <button class="btn" type="button" id="clearBtn">Clear Saved</button>
+            <button class="btn primary" type="submit" id="submitBtn">Login</button>
+          </div>
+        </div>
+
+        <div class="note" id="finePrint">
+          Stored locally on this device only.
+        </div>
+      </form>
+
+      <div class="note" style="margin-top:14px;">
+        Already signed in? <a href="index.html" style="color:var(--gold2);text-decoration:none;">Go to Lobby</a>
+      </div>
+    </section>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // Local-only auth (device save)
+    const LS = {
+      user: "sim_user",
+      pass: "sim_pass_hash",
+      remember: "sim_remember",
+      balance: "sim_balance"
+    };
+
+    const $ = (id) => document.getElementById(id);
+
+    const tabLogin = $("tabLogin");
+    const tabRegister = $("tabRegister");
+
+    const heading = $("formHeading");
+    const sub = $("formSub");
+    const submitBtn = $("submitBtn");
+    const finePrint = $("finePrint");
+
+    const form = $("authForm");
+    const username = $("username");
+    const password = $("password");
+    const remember = $("remember");
+    const clearBtn = $("clearBtn");
+
+    const toastEl = $("toast");
+
+    let mode = "login"; // login | register
+
+    function toast(msg){
+      toastEl.innerHTML = msg;
+      toastEl.classList.add("show");
+      clearTimeout(toastEl._t);
+      toastEl._t = setTimeout(() => toastEl.classList.remove("show"), 1500);
+    }
+
+    function simpleHash(str){
+      // Not secure (frontend-only demo). Enough to avoid storing plain text.
+      // In a real backend, you'd use proper hashing on the server.
+      let h = 2166136261;
+      for(let i=0;i<str.length;i++){
+        h ^= str.charCodeAt(i);
+        h = Math.imul(h, 16777619);
+      }
+      return (h >>> 0).toString(16);
+    }
+
+    function setMode(next){
+      mode = next;
+      if(mode === "login"){
+        tabLogin.classList.add("active");
+        tabRegister.classList.remove("active");
+        heading.textContent = "Login";
+        sub.textContent = "Enter your details to continue.";
+        submitBtn.textContent = "Login";
+        finePrint.textContent = "Stored locally on this device only.";
+      }else{
+        tabRegister.classList.add("active");
+        tabLogin.classList.remove("active");
+        heading.textContent = "Register";
+        sub.textContent = "Create an account for this device.";
+        submitBtn.textContent = "Create Account";
+        finePrint.textContent = "This creates a local account on this device only.";
+      }
+    }
+
+    tabLogin.addEventListener("click", () => setMode("login"));
+    tabRegister.addEventListener("click", () => setMode("register"));
+
+    clearBtn.addEventListener("click", () => {
+      localStorage.removeItem(LS.user);
+      localStorage.removeItem(LS.pass);
+      localStorage.removeItem(LS.remember);
+      toast("Saved login cleared");
+    });
+
+    function normalizeUser(u){
+      return u.trim().replace(/\s+/g, " ").slice(0, 20);
+    }
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const u = normalizeUser(username.value);
+      const p = password.value;
+
+      if(u.length < 2){
+        toast("Username too short");
+        return;
+      }
+      if(p.length < 4){
+        toast("Password too short");
+        return;
+      }
+
+      const storedUser = localStorage.getItem(LS.user) || "";
+      const storedPass = localStorage.getItem(LS.pass) || "";
+
+      if(mode === "register"){
+        localStorage.setItem(LS.user, u);
+        localStorage.setItem(LS.pass, simpleHash(p));
+        if(remember.checked) localStorage.setItem(LS.remember, "1");
+        else localStorage.removeItem(LS.remember);
+
+        // Give starter coins once if needed
+        if(!localStorage.getItem(LS.balance)){
+          localStorage.setItem(LS.balance, "5000");
+        }
+
+        toast(`Account created • <b>${u}</b>`);
+        setTimeout(() => window.location.href = "index.html", 400);
+        return;
+      }
+
+      // login
+      if(!storedUser || !storedPass){
+        toast("No account found • Switch to Register");
+        return;
+      }
+
+      if(u !== storedUser){
+        toast("Incorrect username");
+        return;
+      }
+      if(simpleHash(p) !== storedPass){
+        toast("Incorrect password");
+        return;
+      }
+
+      if(remember.checked) localStorage.setItem(LS.remember, "1");
+      else localStorage.removeItem(LS.remember);
+
+      toast(`Logged in • <b>${u}</b>`);
+      setTimeout(() => window.location.href = "index.html", 400);
+    });
+
+    // Auto-fill if user exists
+    (function init(){
+      const u = localStorage.getItem(LS.user);
+      if(u) username.value = u;
+
+      const rem = localStorage.getItem(LS.remember) === "1";
+      remember.checked = rem;
+
+      // If remember me is enabled and there's a stored account, bounce to lobby
+      // (Feels like a real "remembered session")
+      if(rem && u && localStorage.getItem(LS.pass)){
+        toast(`Welcome back • <b>${u}</b>`);
+        setTimeout(() => window.location.href = "index.html", 450);
+      }
+    })();
+  </script>
+</body>
+</html>
